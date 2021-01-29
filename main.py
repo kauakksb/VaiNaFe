@@ -5,7 +5,7 @@ from pybricks.ev3devices import (TouchSensor, ColorSensor,
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
-from pybricks.media.ev3dev import SoundFile, ImageFile
+from pybricks.media.ev3dev import SoundFile, ImageFile, Font
 
 from motor import ClassMotor
 from drive import ClassDriveBase
@@ -16,6 +16,9 @@ class Robot:
         self.name = "Legosvaldo" # Propriedade de nome
 
         self.brick = EV3Brick() # Bloco EV3
+        """
+            Limpar o visor! (a partir do self.brick)
+        """
 
         # Tentando declarar as variáveis de sensor e robô
         # Motores
@@ -30,8 +33,22 @@ class Robot:
             self.right_s_color = ClassColorSensor(Port.S2) # Sensor de cor direito
             self.left_s_color = ClassColorSensor(Port.S3) # Sensor de cor esquerdo
             self.gyro_sensor = GyroSensor(Port.S1) # Sensor giroscópio
+            
         except:
-            print("Algum cabo está desconectado.")
+            """
+                Dever de Casa: Erro nas portas
+
+                erros = []
+                try:
+                    trash = self.right_t_motor.get_speed()
+                except:
+                    erros.append('B')
+
+                ...
+
+                - No final da verificação, imprima os erros de alguma forma no visor
+                    e faça algum barulho
+            """
 
         # Valores úteis
         self.wheel_diameter = 56 # Diâmetro da roda em mm
@@ -45,7 +62,7 @@ class Robot:
 
     # Método de inicialização do robô
     def start(self) -> None:
-        self.check() # Ativando o método de checkagem
+        self.calibration() # Ativando o método de checkagem
 
         # Máquina de Estado
         while True:
@@ -61,7 +78,7 @@ class Robot:
                 break
             
             wait(100) # Tempo de 200ms para a não ativação desproposital de alguma função
-    
+
     # Função de lançamento um
     def launch_one(self):
         self.drive.run_straight(800)
@@ -71,7 +88,21 @@ class Robot:
         self.drive.turn_angle(95)
 
     # Checkagem dos cabos, valores de sensor e calibração
-    def check(self) -> None:
+    def calibration(self) -> None:
+        """
+            Dever de casa: Calibração
+
+            - Resetar o ângulo do sensor de giro para 0 (não esqueça de mudar
+                a classe lá em cima)
+
+            - Esperar apertar o botão do centro
+            - Definir a propriedade 'self.black' igual ao valor do sensor da frente (reflection)
+            - Espere 500ms
+
+            - Esperar apertar o botão do centro
+            - Definir a propriedade 'self.white' igual ao valor do sensor da frente (reflection)
+            - Espere 500ms
+        """
         pass
     
     # Retornando o valor de voltagem e corrente da bateria

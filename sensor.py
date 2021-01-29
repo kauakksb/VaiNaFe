@@ -21,4 +21,16 @@ class ClassColorSensor:
         else:
             return self.sensor.rgb()
 
+""" 
 
+Dever no sensor de giro: 
+
+- Criar a classe
+- Definir a propriedade 'self.sensor' a partir do instanciamento da classe GyroSensor,
+    junto com o parâmetro da porta
+
+- Criação dos métodos
+    - Retorne a velocidade angular
+    - Retorne o ângulo atual
+    - Reseta um ângulo a partir de um valor dado como parâmetro
+"""
