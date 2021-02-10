@@ -9,13 +9,16 @@ from pybricks.media.ev3dev import SoundFile, ImageFile, Font
 
 from motor import ClassMotor
 from drive import ClassDriveBase
-from sensor import ClassColorSensor
+from sensor import ClassColorSensor, ClassGyroSensor
+
+tiny_font = Font(size = 16, bold = True)
 
 class Robot:
     def __init__(self):
         self.name = "Legosvaldo" # Propriedade de nome
 
         self.brick = EV3Brick() # Bloco EV3
+        self.brick.screen.clear()    
         """
             Limpar o visor! (a partir do self.brick)
         """
@@ -32,8 +35,8 @@ class Robot:
             self.front_s_color = ClassColorSensor(Port.S4) # Sensor de cor frontal
             self.right_s_color = ClassColorSensor(Port.S2) # Sensor de cor direito
             self.left_s_color = ClassColorSensor(Port.S3) # Sensor de cor esquerdo
-            self.gyro_sensor = GyroSensor(Port.S1) # Sensor giroscópio
-            
+            self.gyro_sensor = ClassGyroSensor(Port.S1) # Sensor giroscópio
+
         except:
             """
                 Dever de Casa: Erro nas portas
@@ -69,11 +72,18 @@ class Robot:
             # Botões pressionados
             buttons_pressed = self.brick.buttons.pressed()
 
+            self.brick.screen.set_font(tiny_font)#Define a fonte dos textos
+            #Escreve a função de cada botão 
+            self.brick.screen.draw_text(
+                0,10,'Esquerda: Calibração \nCima: Saída1 \nBaixo: Saída2 \nMeio: Fim',text_color = Color.BLACK ,background_color = None)
+
             # Switch de casos de botões pressionados
             if Button.UP in buttons_pressed:
                 self.launch_one() # Lançamento um
             elif Button.DOWN in buttons_pressed:
                 self.launch_two() # Lançamento dois
+            elif Button.LEFT in buttons_pressed:
+                self.calibration()#Calibração
             elif Button.CENTER in buttons_pressed:
                 break
             
@@ -81,14 +91,54 @@ class Robot:
 
     # Função de lançamento um
     def launch_one(self):
-        self.drive.run_straight(800)
+        self.drive.run_straight(350, 800)
+        wait(100)
+        self.drive.turn_angle(16, 250)
+        wait(100)
+        self.drive.run_straight(140, 300)
+        wait(100)
+        self.drive.run_straight(-480, 900)
 
     # Função de lançamento dois
     def launch_two(self):
-        self.drive.turn_angle(95)
+        self.drive.line_follow(drive,left_t_motor,right_t_motor,front_s_color,800,800,white,black)
+
 
     # Checkagem dos cabos, valores de sensor e calibração
     def calibration(self) -> None:
+        self.gyro_sensor.reset_angle()#Resetando ângulo do sensor giroscópico
+        
+        #Botões pressionados
+        buttons_pressed = self.brick.buttons.pressed()
+        
+        #Se o botão esquerdo for pressionado,os comandos em seguida serão executados
+        if Button.LEFT in buttons_pressed:
+            self.brick.screen.clear()
+            self.brick.screen.draw_text(0, 10,'Coloque sobre o preto', text_color = Color.BLACK, background_color = None)
+            wait(3000)
+            self.brick.screen.clear()#limpa o visor do EV3
+            wait(3000)
+            if Button.LEFT in buttons_pressed:
+                #Lê o valor de reflexão da cor preta, escreve-os na tela do EV3 e espera 500ms
+                self.black = self.front_s_color.get_value('reflection')
+                self.brick.screen.draw_text(0, 10, self.black, text_color = Color.BLACK, background_color = None)
+                wait(3000)
+                self.brick.screen.clear()#Limpa o visor do EV3
+            wait(500)
+        
+        #Se o botão esquerdo for pressionado,os comandos em seguida serão executados
+        if Button.LEFT in buttons_pressed:
+            self.brick.screen.draw_text(0, 50,'Coloque sobre o branco', text_color = Color.BLACK, background_color = None)
+            wait(3000)
+            self.brick.screen.clear()#Limpa o visor do EV3
+            wait(3000)
+            if Button.LEFT in buttons_pressed:
+                #Lê o valor de reflexão da cor branca, escreve-os o valor na tela do EV3 e espera 500ms
+                self.white = self.front_s_color.get_value('reflection')
+                self.brick.screen.draw_text(0, 50, self.white, text_color = Color.BLACK, background_color = None)
+                wait(3000)
+                self.brick.screen.clear()#Limpa o visor do EV3
+            wait(500)
         """
             Dever de casa: Calibração
 

@@ -34,3 +34,19 @@ Dever no sensor de giro:
     - Retorne o ângulo atual
     - Reseta um ângulo a partir de um valor dado como parâmetro
 """
+class ClassGyroSensor:
+    def __init__(self,port,positive_direction = Direction.CLOCKWISE):
+        self.gsensor = GyroSensor(port,positive_direction)
+
+
+    #Obtendo valores de velocidade de rotação
+    def get_gyro_speed(self):
+        return self.gsensor.speed()
+
+    #Obtendo valores de ângulo de rotação 
+    def get_gyro_angle(self):
+        return self.gsensor.angle()
+
+    #Reseta os valores do ângulo de rotação
+    def reset_angle(self,value = 0):
+        self.gsensor.reset_angle(value)
