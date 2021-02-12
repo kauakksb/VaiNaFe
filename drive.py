@@ -22,6 +22,9 @@ class ClassDriveBase:
         self.turn_rate = 450
         self.turn_acceleration = 250
 
+        self.wheel_diameter = 56
+        self.axle_track = 145
+
         self.black = 0
         self.white = 0
 
@@ -94,8 +97,7 @@ class ClassDriveBase:
         self.drive.reset()
 
 
-    def line_follow(self,left_motor,right_motor,front_s_color,distance,speed,white,black):
-        self.drive.straight(distance)
+    def line_follow(self,distance,speed):
         self.set_speed(speed)
 
         motor_l_angle = self.left_motor.get_angle()
@@ -106,7 +108,7 @@ class ClassDriveBase:
             self.white = 85
         threshold = (self.black + self.white) / 2
         
-        proportional = 1
+        proportional = 0.7
         pi = 3.14
 
         while True:
@@ -115,14 +117,14 @@ class ClassDriveBase:
 
             #Calculando a correção a ser feita pelo robô
             self.error_correction = deviation * proportional
-            self.drive(speed,self.error_correction)
+            self.drive.drive(speed,self.error_correction)
 
             #Calculando a média da distância percorrida por ambos os motores
-            media_motor_values = (motor_l_angle - self.left_motor.angle() + motor_r_angle - self.right_motor.angle) / 2 
-            distance_mm = (media_motor_values * (pi * wheel_diameter) / 360) * 10
+            media_motor_values = (self.left_motor.get_angle() - motor_l_angle + self.right_motor.get_angle() - motor_r_angle) / 2 
+            distance_mm = (media_motor_values * (pi * self.wheel_diameter) / 360) * 10
             
             #Se tiver passado da distância determinada,e o programa é encerrado e o robô para
-            if media_motor_values >= distance:
-                break
+            if distance_mm >= distance:
                 wait(10)
+                break
         self.drive.stop()

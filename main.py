@@ -101,7 +101,7 @@ class Robot:
 
     # Função de lançamento dois
     def launch_two(self):
-        self.drive.line_follow(drive,left_t_motor,right_t_motor,front_s_color,800,800,white,black)
+        self.drive.line_follow(800,800)
 
 
     # Checkagem dos cabos, valores de sensor e calibração
