@@ -96,35 +96,48 @@ class ClassDriveBase:
     def reset(self):
         self.drive.reset()
 
-
-    def line_follow(self,distance,speed):
+    # Função de seguir linha
+    def line_follow(self,distance,speed,proportional = 1.4):
+        self.reset()
+        self.drive.distance()
         self.set_speed(speed)
 
-        motor_l_angle = self.left_motor.get_angle()
-        motor_r_angle = self.right_motor.get_angle()
-
-        if self.black == None:
-            self.black = 8
-            self.white = 85
-        threshold = (self.black + self.white) / 2
+        # Define os valores de preto e de branco caso eles não tenham sido definidos na calibração
+        if self.black == 0:
+            self.black = 6
+            self.white = 91
         
-        proportional = 0.7
-        pi = 3.14
+        threshold = (self.black + self.white) / 2 # Calcula a méida dos valores de preto e branco
+        pi = 3.14 # Define o valor de pi
 
-        while True:
-            #Calculando o desvio do robô
-            deviation = self.front_s_color.get_value('reflection') - threshold
-
-            #Calculando a correção a ser feita pelo robô
-            self.error_correction = deviation * proportional
-            self.drive.drive(speed,self.error_correction)
-
-            #Calculando a média da distância percorrida por ambos os motores
-            media_motor_values = (self.left_motor.get_angle() - motor_l_angle + self.right_motor.get_angle() - motor_r_angle) / 2 
-            distance_mm = (media_motor_values * (pi * self.wheel_diameter) / 360) * 10
+        # Executará o código enquanto o robô não tiver percorrido a distância definida
+        while distance > self.drive.distance():
             
-            #Se tiver passado da distância determinada,e o programa é encerrado e o robô para
-            if distance_mm >= distance:
-                wait(10)
-                break
-        self.drive.stop()
+            # Mede o desvio,calcula a correção a ser feita e então a executa
+            reflection_line_follower = self.front_s_color.get_value('reflection') # Valor de reflexão do sensor
+            deviation = reflection_line_follower - threshold # Calculando o desvio feito pelo robô
+            self.error_correction = deviation * proportional # Calculando a correção a ser feita pelo robô
+            self.drive.drive(speed,self.error_correction) # Executando a correção
+            print(deviation)
+            print('cor:',self.front_s_color.get_value('reflection'))
+        self.drive.stop() 
+
+    # Move-se de forma retilínea até identificar a cor preta
+    def run_until_line(self,speed,sensor,line):
+        self.set_speed(speed)
+
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.drive.drive(speed,0)# O robô se locomove pra frente
+            self.drive.stop()
+
+        elif 30 < line > 55:
+            while sensor.get_value('reflection') != line:
+                self.drive.drive(speed,0)# O robô se locomove pra frente
+            self.drive.stop()
+
+        elif line > 55:
+            while sensor.get_value('reflection') < line:
+                self.drive.drive(speed,0)# O robô se locomove pra frente
+            self.drive.stop()
+    

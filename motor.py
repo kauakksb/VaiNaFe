@@ -22,6 +22,18 @@ class ClassMotor:
     def run_with_detection_stop_and_drop(self, speed, torque, degree):
         pass
 
+    def move_grab(self,speed,degree):
+        self.reset_angle()
+        if speed > 0:
+            while self.motor.angle() < degree:
+                self.motor.run(speed)
+            self.stop('stop')
+        else:
+            while self.motor.angle() > degree*-1:
+                self.motor.run(speed)
+            self.stop('stop')
+
+
     # Retorna a velocidade atual do motor
     def get_speed(self):
         return self.motor.speed()
