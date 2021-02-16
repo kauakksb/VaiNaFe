@@ -131,11 +131,6 @@ class ClassDriveBase:
                 self.drive.drive(speed,0)# O robô se locomove pra frente
             self.drive.stop()
 
-        elif 30 < line > 55:
-            while sensor.get_value('reflection') != line:
-                self.drive.drive(speed,0)# O robô se locomove pra frente
-            self.drive.stop()
-
         elif line > 55:
             while sensor.get_value('reflection') < line:
                 self.drive.drive(speed,0)# O robô se locomove pra frente

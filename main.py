@@ -57,8 +57,9 @@ class Robot:
         # Valores úteis
         self.wheel_diameter = 56 # Diâmetro da roda em mm
         self.distance_between_wheels = 145 # Distância entre as rodas em mm
-        self.white = 80
-        self.black = 8
+        self.white = 85
+        self.black = 7
+        self.white_back_sensors = 63
 
         # Drive Base
         self.drive = ClassDriveBase(
@@ -113,10 +114,14 @@ class Robot:
 
     # Função de lançamento dois
     def launch_two(self):
-        self.drive.run_straight(305,250)
+        self.drive.run_straight(250,300)
+        self.drive.run_until_line(100,self.front_s_color,self.black)
         self.drive.line_follow(1200,150)
-        self.drive.run_until_line(250,self.front_s_color,self.white)
-        self.drive.run_straight(-100,150)
+        self.drive.run_until_line(100,self.left_s_color,self.white_back_sensors)
+        self.drive.run_straight(-19,25)
+        self.right_g_motor.move_grab(900,5000)
+        self.drive.run_until_line(-110,self.left_s_color,self.white_back_sensors)
+
 
     def launch_three(self):
         self.left_g_motor.run_with_detection_stop_infinity(500,35)
