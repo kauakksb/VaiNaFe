@@ -97,7 +97,7 @@ class ClassDriveBase:
         self.drive.reset()
 
     # Função de seguir linha
-    def line_follow(self,distance,speed,proportional = 1.4):
+    def line_follow(self,distance,speed,kp = 1.1,ki = 0.00000005,kd = 3):
         self.reset()
         self.drive.distance()
         self.set_speed(speed)
@@ -109,17 +109,21 @@ class ClassDriveBase:
         
         threshold = (self.black + self.white) / 2 # Calcula a méida dos valores de preto e branco
         pi = 3.14 # Define o valor de pi
+        deviation = 0
+        integral = 0
+        derivate = 0 
+        last_error = 0
 
         # Executará o código enquanto o robô não tiver percorrido a distância definida
         while distance > self.drive.distance():
-            
             # Mede o desvio,calcula a correção a ser feita e então a executa
             reflection_line_follower = self.front_s_color.get_value('reflection') # Valor de reflexão do sensor
             deviation = reflection_line_follower - threshold # Calculando o desvio feito pelo robô
-            self.error_correction = deviation * proportional # Calculando a correção a ser feita pelo robô
+            integral = integral + deviation
+            last_error = deviation
+            derivate = deviation - last_error
+            self.error_correction =kp *(deviation + ki * integral + kd * derivate)# Calculando a correção a ser feita pelo robô
             self.drive.drive(speed,self.error_correction) # Executando a correção
-            print(deviation)
-            print('cor:',self.front_s_color.get_value('reflection'))
         self.drive.stop() 
 
     # Move-se de forma retilínea até identificar a cor preta
@@ -136,3 +140,55 @@ class ClassDriveBase:
                 self.drive.drive(speed,0)# O robô se locomove pra frente
             self.drive.stop()
     
+    def turn_until_line(self,left_speed,right_speed,sensor,line):
+        
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.left_motor.run(left_speed)
+                self.right_motor.run(right_speed)
+            self.drive.stop()
+
+        elif line > 30:
+            while sensor.get_value('reflection') < line:
+                self.left_motor.run(left_speed)
+                self.right_motor.run(right_speed)
+            self.drive.stop()
+
+    def left_line_turn(self,speed,sensor,line):
+        
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.left_motor.stop('hold')
+                self.right_motor.run(speed)
+            self.drive.stop()
+
+        if line > 30:
+            while sensor.get_value('reflection') < line:
+                self.left_motor.stop('hold')
+                self.right_motor.run(speed)
+            self.drive.stop()
+
+    def right_line_turn(self,speed,sensor,line):
+        
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.right_motor.stop('hold')
+                self.left_motor.run(speed)
+            self.drive.stop()
+
+        if line > 30:
+            while sensor.get_value('reflection') < line:
+                self.right_motor.stop('hold')
+                self.left_motor.run(speed)
+            self.drive.stop()
+
+    def run_during_line(self,speed,sensor,line):
+        if line > 30:
+            while sensor.get_value('reflection') > 50:
+                self.drive.drive(speed,0)
+            self.drive.stop()
+
+        if line < 30:
+            while sensor.get_value('reflection') < 25:
+                self.drive.drive(speed,0)
+            self.drive.stop() 

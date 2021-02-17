@@ -59,7 +59,9 @@ class Robot:
         self.distance_between_wheels = 145 # Distância entre as rodas em mm
         self.white = 85
         self.black = 7
-        self.white_back_sensors = 63
+        self.white_back_sensors = 68
+
+        self.threshold = (self.black + self.white) / 2
 
         # Drive Base
         self.drive = ClassDriveBase(
@@ -94,7 +96,7 @@ class Robot:
             elif Button.DOWN in buttons_pressed:
                 self.launch_two() # Lançamento dois
             elif Button.RIGHT in buttons_pressed:
-                self.launch_three()# Lançamento três
+                self.launch_four()# Lançamento três
             elif Button.LEFT in buttons_pressed:
                 self.calibration() # Calibração
             elif Button.CENTER in buttons_pressed:
@@ -115,13 +117,17 @@ class Robot:
     # Função de lançamento dois
     def launch_two(self):
         self.drive.run_straight(250,300)
-        self.drive.run_until_line(100,self.front_s_color,self.black)
-        self.drive.line_follow(1200,150)
-        self.drive.run_until_line(100,self.left_s_color,self.white_back_sensors)
-        self.drive.run_straight(-19,25)
-        self.right_g_motor.move_grab(900,5000)
-        self.drive.run_until_line(-110,self.left_s_color,self.white_back_sensors)
-
+        self.drive.run_until_line(150,self.front_s_color,self.black)
+        self.drive.line_follow(950,140)
+        self.drive.line_follow(200,100)
+        self.drive.run_until_line(200,self.left_s_color,self.white_back_sensors)
+        self.drive.run_during_line(-15,self.left_s_color,self.white_back_sensors)
+        self.right_g_motor.move_grab(900,5100)
+        self.drive.run_until_line(-110,self.left_s_color,self.black)
+        self.drive.turn_until_line(-110,110,self.left_s_color,self.white_back_sensors)
+        self.drive.turn_until_line(-110,110,self.left_s_color,self.black)
+        self.drive.run_straight(300,100)
+        self.drive.run_until_line(90,self.right_s_color,self.black)
 
     def launch_three(self):
         self.left_g_motor.run_with_detection_stop_infinity(500,35)
@@ -139,7 +145,10 @@ class Robot:
         self.drive.run_straight(20,100)
         self.drive.line_follow(320,180)
         wait(50)
+        
 
+    def launch_four(self):
+        self.drive.line_follow(1210,150)
         
     def calibration(self) -> None:
         

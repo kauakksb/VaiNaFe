@@ -33,7 +33,6 @@ class ClassMotor:
                 self.motor.run(speed)
             self.stop('stop')
 
-
     # Retorna a velocidade atual do motor
     def get_speed(self):
         return self.motor.speed()
