@@ -5,7 +5,7 @@ from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile, ImageFile
 
-from sensor import ClassColorSensor
+from sensor import ClassColorSensor,ClassGyroSensor
 
 class ClassDriveBase:
     def __init__(self, left_motor, right_motor, wheel_diameter, axle_track):
@@ -23,7 +23,7 @@ class ClassDriveBase:
         self.turn_acceleration = 250
 
         self.wheel_diameter = 56
-        self.axle_track = 145
+        self.axle_track = 90
 
         self.black = 0
         self.white = 0
@@ -31,6 +31,7 @@ class ClassDriveBase:
         self.error_correction = 0
 
         self.front_s_color = ClassColorSensor(Port.S4)
+        self.gyro_sensor = ClassGyroSensor(Port.S1)
 
         # Definindo os valores de configuração
         self.set_state(
@@ -66,7 +67,7 @@ class ClassDriveBase:
         self.drive.settings(self.straight_rate, self.straight_acceleration, self.turn_rate, self.turn_acceleration)
 
     # Definindo a propriedade de aceleração na reta
-    def set_acceleraton(self, straight_acceleraton):
+    def set_acceleration(self, straight_acceleraton):
         self.straight_acceleraton = straight_acceleraton
         self.drive.settings(self.straight_rate, self.straight_acceleration, self.turn_rate, self.turn_acceleration)
 
@@ -97,7 +98,7 @@ class ClassDriveBase:
         self.drive.reset()
 
     # Função de seguir linha
-    def line_follow(self,distance,speed,kp = 1.1,ki = 0.00000005,kd = 3):
+    def line_follow(self,distance,speed,kp = 1.3,ki = 0.000000005,kd = 3):
         self.reset()
         self.drive.distance()
         self.set_speed(speed)
@@ -122,7 +123,7 @@ class ClassDriveBase:
             integral = integral + deviation
             last_error = deviation
             derivate = deviation - last_error
-            self.error_correction =kp *(deviation + ki * integral + kd * derivate)# Calculando a correção a ser feita pelo robô
+            self.error_correction = kp *(deviation + ki * integral + kd * derivate)# Calculando a correção a ser feita pelo robô
             self.drive.drive(speed,self.error_correction) # Executando a correção
         self.drive.stop() 
 
@@ -154,21 +155,21 @@ class ClassDriveBase:
                 self.right_motor.run(right_speed)
             self.drive.stop()
 
-    def left_line_turn(self,speed,sensor,line):
+    def right_motor_line_turn(self,speed,sensor,line):
         
-        if line < 30:
+        if line < 50:
             while sensor.get_value('reflection') > line:
                 self.left_motor.stop('hold')
                 self.right_motor.run(speed)
             self.drive.stop()
 
-        if line > 30:
+        if line > 50:
             while sensor.get_value('reflection') < line:
                 self.left_motor.stop('hold')
                 self.right_motor.run(speed)
             self.drive.stop()
 
-    def right_line_turn(self,speed,sensor,line):
+    def left_motor_line_turn(self,speed,sensor,line):
         
         if line < 30:
             while sensor.get_value('reflection') > line:
@@ -184,7 +185,12 @@ class ClassDriveBase:
 
     def run_during_line(self,speed,sensor,line):
         if line > 30:
-            while sensor.get_value('reflection') > 50:
+            while sensor.get_value('reflection') > 58:
+                self.drive.drive(speed,0)
+            self.drive.stop()
+
+        if line > 70:
+            while sensor.get_value('reflection') > 82:
                 self.drive.drive(speed,0)
             self.drive.stop()
 
@@ -192,3 +198,58 @@ class ClassDriveBase:
             while sensor.get_value('reflection') < 25:
                 self.drive.drive(speed,0)
             self.drive.stop() 
+
+    def pid_run_straight(self,distance,speed,kp = 1.4,ki = 0.01,kd = 3):
+        self.gyro_sensor.reset_angle(0)
+        self.reset()
+        self.drive.distance()
+        self.set_speed(speed)
+
+        target = 0
+        deviation,integral,derivate,last_error = 0,0,0,0
+        while distance > self.drive.distance():
+            deviation = self.gyro_sensor.get_gyro_angle() - target 
+            integral = integral + deviation
+            last_error = deviation
+            derivate = deviation - last_error
+            self.error_correction = kp * (deviation + ki * integral + kd * derivate)
+            self.drive.drive(speed,self.error_correction)
+            print(self.error_correction)
+            print(deviation)
+        self.drive.stop()
+
+        if speed < 0:
+            while -distance < self.drive.distance():
+                deviation = self.gyro_sensor.get_gyro_angle() - target 
+                self.error_correction = kp * deviation 
+                self.drive.drive(speed,self.error_correction)
+            self.drive.stop()
+
+    def move_robot_to_0(self,left_speed,right_speed):
+        target = 0 
+        if self.gyro_sensor.get_gyro_angle() > 0:
+            while self.gyro_sensor.get_gyro_angle() > target:
+                self.left_motor.run(left_speed)
+                self.right_motor.run(-right_speed)
+            self.drive.stop()
+
+        if self.gyro_sensor.get_gyro_angle() < 0:
+            while self.gyro_sensor.get_gyro_angle():
+                self.left_motor.run(-left_speed)
+                self.right_motor.run(right_speed)
+            self.drive.stop()
+
+    def gyro_turn_degree(self,speed,degree):
+        self.gyro_sensor.reset_angle(0)
+        
+        if degree < 0:
+            while self.gyro_sensor.get_gyro_angle() > degree:
+                self.left_motor.run(speed)
+                self.right_motor.run(-speed)
+            self.drive.stop()
+
+        elif degree > 0:
+            while self.gyro_sensor.get_gyro_angle() < degree:
+                self.left_motor.run(-speed)
+                self.right_motor.run(speed)
+            self.drive.stop()
