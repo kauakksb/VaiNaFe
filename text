@@ -1,0 +1,92 @@
+        self.drive.run_until_line(-100,self.front_s_color,self.black)
+        self.drive.gyro_turn_degree(100,-45)
+        self.left_g_motor.move_grab(1000,1300)
+        self.drive.run_straight(120,100)
+        self.drive.gyro_turn_degree(75,15)
+        self.left_g_motor.move_grab(-1000,1000)
+        self.drive.gyro_turn_degree(75,-15)
+        self.drive.run_until_line(-100,self.left_s_color,self.black)
+        self.drive.gyro_turn_degree(100,-90)
+
+
+
+        while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') > self.black:
+            self.drive.drive(-30, 0)
+        self.drive.stop()
+        self.left_motor.stop('hold')
+        self.right_motor.stop('hold')
+
+        while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.threshold:
+            self.drive.drive(30, 0)
+        self.drive.stop()
+        self.left_motor.stop('hold')
+        self.right_motor.stop('hold')
+
+        while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.white_back_sensors:
+            self.drive.drive(30, 0)
+        self.drive.stop()
+        self.left_motor.stop('hold')
+        self.right_motor.stop('hold')
+
+        while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.threshold:
+            self.drive.drive(-30, 0)
+        self.drive.stop()
+        self.left_motor.stop('hold')
+        self.right_motor.stop('hold')
+
+         i = 0
+
+                while rate_of_change * (1 + i) > degree * 0.5:
+                    speed -= i
+                    i -= 1
+
+
+
+
+
+        while self.gyro_sensor.get_gyro_angle() < degree:
+            self.left_motor.run(-fmax)
+            self.right_motor.run(fmax)
+
+            while self.gyro_sensor.get_gyro_angle() < rate_of_change * (i + 1):
+                while i < variation:
+                    fmax -= 1
+                    i += 1
+
+
+
+
+
+        speed = fmin
+
+        while self.gyro_sensor.get_gyro_angle() < degree * 0.5:
+            self.left_motor.run(-speed)
+            self.right_motor.run(speed)
+
+            while self.gyro_sensor.get_gyro_angle() < rate_of_change * (i + 1):
+                pass
+                
+            while i < variation:
+                speed += 1
+                print(speed)
+                i += 1
+            pass
+
+
+
+
+        speed = fmax
+        i = 0
+
+        while self.gyro_sensor.get_gyro_angle() < degree:
+            self.left_motor.run(-speed)
+            self.right_motor.run(speed)
+
+            while self.gyro_sensor.get_gyro_angle() < rate_of_change * (i + 1) + degree*0.5:
+                pass
+                
+            while i < variation:
+                speed = fmax
+                speed -= i
+                print(speed)
+                i += 1

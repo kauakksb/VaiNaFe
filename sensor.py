@@ -22,7 +22,7 @@ class ClassColorSensor:
             return self.sensor.rgb()
 
 class ClassGyroSensor:
-    def __init__(self,port,positive_direction = Direction.CLOCKWISE):
+    def __init__(self, port, positive_direction = Direction.CLOCKWISE):
         self.gsensor = GyroSensor(port,positive_direction) # Instanciando a classe de sensor giroscópico
 
 

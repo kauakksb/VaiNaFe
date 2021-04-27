@@ -9,10 +9,44 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 class ClassMotor:
     def __init__(self, port):
         self.motor = Motor(port)
+
+        self.pi = 3.14
+        self.wheel_diameter = 56
     
     # Função de corrida (infinita) 
     def run(self, speed):
         self.motor.run(speed)
+
+    def run_dist(self, speed, dist, stop_type = 'hold'):
+        self.motor.reset_angle(0)
+        pi = 3.14
+
+        if stop_type == 'hold':
+
+            if dist > 0:
+
+                while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+                    self.motor.run(speed)
+                self.stop('hold')
+
+            if dist < 0:
+                while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+                    self.motor.run(speed)
+                self.stop('hold')
+
+        if stop_type == 'stop':
+
+            if dist > 0:
+
+                while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+                    self.motor.run(speed)
+                self.stop('stop')
+
+            if dist < 0:
+                while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+                    self.motor.run(speed)
+                self.stop('stop')
+
 
     # Correndo com detecção de parada inifito até detectar
     def run_with_detection_stop_infinity(self, speed, torque):
