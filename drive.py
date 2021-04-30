@@ -109,8 +109,8 @@ class ClassDriveBase:
 
         # Define os valores de preto e de branco caso eles não tenham sido definidos na calibração
         if self.black == 0:
-            self.black = 6
-            self.white = 91
+            self.black = 7
+            self.white = 80
         
         threshold = (self.black + self.white) / 2 # Calcula a méida dos valores de preto e branco
         pi = 3.14 # Define o valor de pi
@@ -119,173 +119,104 @@ class ClassDriveBase:
         derivate = 0 
         last_error = 0
 
-        if stop_type == 'hold':
-
         # Executará o código enquanto o robô não tiver percorrido a distância definida
-            while distance > self.drive.distance():
-                # Mede o desvio,calcula a correção a ser feita e então a executa
-                reflection_line_follower = self.front_s_color.get_value('reflection') # Valor de reflexão do sensor
-                deviation = reflection_line_follower - threshold # Calculando o desvio feito pelo robô
-                integral = integral + deviation
-                last_error = deviation
-                derivate = deviation - last_error
-                self.error_correction = kp *(deviation + ki * integral + kd * derivate)# Calculando a correção a ser feita pelo robô
-                self.drive.drive(speed,self.error_correction) # Executando a correção
+        while distance > self.drive.distance():
+            # Mede o desvio,calcula a correção a ser feita e então a executa
+            reflection_line_follower = self.front_s_color.get_value('reflection') # Valor de reflexão do sensor
+            deviation = reflection_line_follower - threshold # Calculando o desvio feito pelo robô
+            integral = integral + deviation
+            last_error = deviation
+            derivate = deviation - last_error
+            self.error_correction = kp *(deviation + ki * integral + kd * derivate)# Calculando a correção a ser feita pelo robô
+            self.drive.drive(speed,self.error_correction) # Executando a correção
+
+        if stop_type == 'hold':
             self.drive.stop()
             self.left_motor.stop('hold')
             self.right_motor.stop('hold')
 
-        if stop_type == 'stop':
-
-        # Executará o código enquanto o robô não tiver percorrido a distância definida
-            while distance > self.drive.distance():
-                # Mede o desvio,calcula a correção a ser feita e então a executa
-                reflection_line_follower = self.front_s_color.get_value('reflection') # Valor de reflexão do sensor
-                deviation = reflection_line_follower - threshold # Calculando o desvio feito pelo robô
-                integral = integral + deviation
-                last_error = deviation
-                derivate = deviation - last_error
-                self.error_correction = kp *(deviation + ki * integral + kd * derivate)# Calculando a correção a ser feita pelo robô
-                self.drive.drive(speed,self.error_correction) # Executando a correção
+        elif stop_type == 'stop':
             self.drive.stop()
 
-    # Move-se de forma retilínea até identificar a cor preta
+
+    # Move-se de forma retilínea até identificar uma cor definida
     def run_until_line(self, speed, sensor, line, stop_type = 'hold'):
         self.set_speed(speed)
 
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.drive.drive(speed,0)# O robô se locomove pra frente
+            
+        elif line > 55:
+            while sensor.get_value('reflection') < line:
+                self.drive.drive(speed,0)# O robô se locomove pra frente
+        
         if stop_type == 'hold':
-            if line < 30:
-                while sensor.get_value('reflection') > line:
-                    self.drive.drive(speed,0)# O robô se locomove pra frente
-                self.drive.stop()
-                self.left_motor.stop('hold')
-                self.right_motor.stop('hold')
+            self.drive.stop()
+            self.left_motor.stop('hold')
+            self.right_motor.stop('hold')
 
-            elif line > 55:
-                while sensor.get_value('reflection') < line:
-                    self.drive.drive(speed,0)# O robô se locomove pra frente
-                self.drive.stop()
-                self.left_motor.stop('hold')
-                self.right_motor.stop('hold')
+        elif stop_type == 'stop':
+            self.drive.stop()
 
-        if stop_type == 'stop':
-            if line < 30:
-                while sensor.get_value('reflection') > line:
-                    self.drive.drive(speed,0)# O robô se locomove pra frente
-                self.drive.stop()
-
-            elif line > 55:
-                while sensor.get_value('reflection') < line:
-                    self.drive.drive(speed,0)# O robô se locomove pra frente
-                self.drive.stop()
     
-    def turn_until_line(self, left_speed, right_speed, sensor, line, stop_type = 'hold'):
+    def turn_until_line(self, speed, sensor, line, direction, stop_type = 'hold'):
 
+        if direction == 'positive':
+            l_speed = -speed
+            r_speed = speed
+
+        elif direction == 'negative':
+            l_speed = speed
+            r_speed = -speed
+        
+        
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.left_motor.run(l_speed)
+                self.right_motor.run(r_speed)
+
+        elif line > 30:
+            while sensor.get_value('reflection') < line:
+                self.left_motor.run(l_speed)
+                self.right_motor.run(r_speed)
+            
         if stop_type == 'hold':
-        
-            if line < 30:
-                while sensor.get_value('reflection') > line:
-                    self.left_motor.run(left_speed)
-                    self.right_motor.run(right_speed)
-                self.drive.stop()
-                self.left_motor.stop('hold')
-                self.right_motor.stop('hold')
+            self.drive.stop()
+            self.left_motor.stop('hold')
+            self.right_motor.stop('hold')
 
-            elif line > 30:
-                while sensor.get_value('reflection') < line:
-                    self.left_motor.run(left_speed)
-                    self.right_motor.run(right_speed)
-                self.drive.stop()
-                self.left_motor.stop('hold')
-                self.right_motor.stop('hold')
-
-        if stop_type == 'stop':
-        
-            if line < 30:
-                while sensor.get_value('reflection') > line:
-                    self.left_motor.run(left_speed)
-                    self.right_motor.run(right_speed)
-                self.drive.stop()
-
-            elif line > 30:
-                while sensor.get_value('reflection') < line:
-                    self.left_motor.run(left_speed)
-                    self.right_motor.run(right_speed)
-                self.drive.stop()
+        elif stop_type == 'stop':
+            self.drive.stop()
 
 
     def motor_line_turn(self, speed, motor, sensor, line, stop_type = 'hold'):
         
         if motor == 'left_motor':
-        
-            if stop_type == 'hold':
-        
-                if line < 30:
-                    while sensor.get_value('reflection') > line:
-                        self.right_motor.stop('hold')
-                        self.left_motor.run(speed)
-                    self.drive.stop()
-                    self.left_motor.stop('hold')
-                    self.right_motor.stop('hold')
+            motor1 = self.left_motor
+            motor2 = self.right_motor
 
-                if line > 30:
-                    while sensor.get_value('reflection') < line:
-                        self.right_motor.stop('hold')
-                        self.left_motor.run(speed)
-                    self.drive.stop()
-                    self.left_motor.stop('hold')
-                    self.right_motor.stop('hold')
-
-            if stop_type == 'stop':
-        
-                if line < 30:
-                    while sensor.get_value('reflection') > line:
-                        self.right_motor.stop('hold')
-                        self.left_motor.run(speed)
-                    self.drive.stop()
-
-                if line > 30:
-                    while sensor.get_value('reflection') < line:
-                        self.right_motor.stop('hold')
-                        self.left_motor.run(speed)
-                    self.drive.stop()
-
-
-        if motor == 'right_motor':
-        
-            if stop_type == 'hold':
-        
-                if line < 30:
-                    while sensor.get_value('reflection') > line:
-                        self.left_motor.stop('hold')
-                        self.right_motor.run(speed)
-                    self.drive.stop()
-                    self.left_motor.stop('hold')
-                    self.right_motor.stop('hold')
-
-                if line > 30:
-                    while sensor.get_value('reflection') < line:
-                        self.left_motor.stop('hold')
-                        self.right_motor.run(speed)
-                    self.drive.stop()
-                    self.left_motor.stop('hold')
-                    self.right_motor.stop('hold')
-
-            if stop_type == 'stop':
-        
-                if line < 30:
-                    while sensor.get_value('reflection') > line:
-                        self.left_motor.stop('hold')
-                        self.right_motor.run(speed)
-                    self.drive.stop()
-
-                if line > 30:
-                    while sensor.get_value('reflection') < line:
-                        self.left_motor.stop('hold')
-                        self.right_motor.run(speed)
-                    self.drive.stop()
-
+        elif motor == 'right_motor':
+            motor1 = self.right_motor
+            motor2 = self.left_motor
     
+        if line < 30:
+            while sensor.get_value('reflection') > line:
+                self.motor2.stop('hold')
+                self.motor1.run(speed)
+            
+        elif line > 30:
+            while sensor.get_value('reflection') < line:
+                self.motor2.stop('hold')
+                self.motor1.run(speed)
+
+        if stop_type == 'hold':
+            self.drive.stop()
+            self.left_motor.stop('hold')
+            self.right_motor.stop('hold')
+
+        elif stop_type == 'stop':
+            self.drive.stop()
 
     def run_during_line(self, speed, sensor, line):
         
@@ -310,7 +241,7 @@ class ClassDriveBase:
             self.left_motor.stop('hold')
             self.right_motor.stop('hold')
 
-    def pid_run_straight(self, distance, speed, kp = 1.4, ki = 0.001, kd = 3):
+    def pid_run_straight(self, distance,speed,stop_type = 'hold', kp = 1.4, ki = 0.001, kd = 3):
         self.gyro_sensor.reset_angle(0)
         self.reset()
         self.drive.distance()
@@ -318,34 +249,49 @@ class ClassDriveBase:
 
         target = 0
         deviation,integral,derivate,last_error = 0,0,0,0
-        while distance > self.drive.distance():
-            deviation = self.gyro_sensor.get_gyro_angle() - target 
-            integral = integral + deviation
-            last_error = deviation
-            derivate = deviation - last_error
-            self.error_correction = kp * (deviation + ki * integral + kd * derivate)
-            self.drive.drive(speed,self.error_correction)
-        self.drive.stop()
 
-        if speed < 0:
-            while -distance < self.drive.distance():
+        if distance > 0:
+
+            while distance > self.drive.distance():
+                deviation = self.gyro_sensor.get_gyro_angle() - target 
+                integral = integral + deviation
+                last_error = deviation
+                derivate = deviation - last_error
+                self.error_correction = kp * (deviation + ki * integral + kd * derivate)
+                self.drive.drive(speed,self.error_correction)
+
+            if stop_type == 'hold':
+                self.drive.stop()
+                self.left_motor.stop('hold')
+                self.right_motor.stop('hold')
+
+            elif stop_type == 'stop':
+                self.drive.stop()
+
+        elif distance < 0:
+            while distance < self.drive.distance():
                 deviation = self.gyro_sensor.get_gyro_angle() - target 
                 self.error_correction = kp * deviation 
                 self.drive.drive(speed,self.error_correction)
             self.drive.stop()
+            self.left_motor.stop('hold')
+            self.right_motor.stop('hold')
 
-    def move_robot_to_0(self, left_speed, right_speed):
+
+    def move_robot_to_0(self, speed ):
+
+        
         target = 0 
         if self.gyro_sensor.get_gyro_angle() > 0:
             while self.gyro_sensor.get_gyro_angle() > target:
-                self.left_motor.run(left_speed)
-                self.right_motor.run(-right_speed)
+                self.left_motor.run(speed)
+                self.right_motor.run(-speed)
             self.drive.stop()
 
         if self.gyro_sensor.get_gyro_angle() < 0:
             while self.gyro_sensor.get_gyro_angle():
-                self.left_motor.run(-left_speed)
-                self.right_motor.run(right_speed)
+                self.left_motor.run(-speed)
+                self.right_motor.run(speed)
             self.drive.stop()
 
 
@@ -433,34 +379,44 @@ class ClassDriveBase:
 
         self.threshold = (self.white_back_sensors + self.black) / 2
 
-        while self.left_s_color.get_value('reflection') > self.black:
-            self.right_motor.stop('hold')
-            self.left_motor.run(speed)
+        if motor == 'left_motor':
+            motor1 = self.left_motor
+            motor2 = self.right_motor
+            sensor = self.left_s_color
+
+        elif motor == 'right_motor':
+            motor1 = self.right_motor
+            motor2 = self.left_motor
+            sensor = self.right_s_color
+
+        while self.sensor.get_value('reflection') > self.black:
+            self.motor2.stop('hold')
+            self.motor1.run(speed)
         self.drive.stop()
-        self.left_motor.stop('hold')
-        self.right_motor.stop('hold')
+        self.motor1.stop('hold')
+        self.motor2.stop('hold')
 
-        motor_angle = self.left_motor.get_angle()
+        motor_angle = self.motor1.get_angle()
 
-        self.left_motor.reset_angle(0)
+        self.motor1.reset_angle(0)
 
         motor_dist = (motor_angle *(pi * self.wheel_diameter)/ 360)
 
-        self.left_motor.run_dist(75, abs(motor_dist*10))
+        self.motor1.run_dist(75, abs(motor_dist*10))
 
-        way = (self.left_motor.get_angle() *(pi * self.wheel_diameter)/ 360)
+        way = (self.motor1.get_angle() *(pi * self.wheel_diameter)/ 360)
         tan = abs(way) / distance_between_sensors
         atan = tan * 180 / pi
 
         self.gyro_sensor.reset_angle(0)
-        self.left_motor.reset_angle(0)
+        self.motor1.reset_angle(0)
 
         while self.gyro_sensor.get_gyro_angle() < atan:
-            self.right_motor.stop('hold')
-            self.left_motor.run(speed)
+            self.motor2.stop('hold')
+            self.motor1.run(speed)
         self.drive.stop()
-        self.left_motor.stop('hold')
-        self.right_motor.stop('hold')
+        self.motor1.stop('hold')
+        self.motor2.stop('hold')
 
     def line_squaring(self, speed, motor,stop_type = 'hold'):
         
@@ -470,45 +426,58 @@ class ClassDriveBase:
 
         self.threshold = (self.white_back_sensors + self.black) / 2
 
-        while self.left_s_color.get_value('reflection') > 10:
+        if motor == 'left_motor':
+            motor1 = self.left_motor
+            motor2 = self.right_motor
+            sensor = self.left_s_color
+            sensor2 = self.right_s_color
+
+        elif motor == 'right_motor':
+            motor1 = self.right_motor
+            motor2 = self.left_motor
+            sensor = self.right_s_color
+            sensor2 = self.left_s_color
+
+
+        while self.sensor.get_value('reflection') > 10:
             print()
-            self.right_motor.stop('hold')
-            self.left_motor.run(speed)
+            self.motor2.stop('hold')
+            self.motor1.run(speed)
         self.drive.stop()
-        self.left_motor.stop('hold')
-        self.right_motor.stop('hold')
+        self.motor1.stop('hold')
+        self.motor2.stop('hold')
 
-        if self.right_s_color.get_value('reflection') < self.threshold:
-
-            while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.white_back_sensors:
-                self.drive.drive(20, 0)
-            self.drive.stop()
-            self.left_motor.stop('hold')
-            self.right_motor.stop('hold')
-
-            while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.threshold:
-                self.drive.drive(-20, 0)
-            self.drive.stop()
-            self.left_motor.stop('hold')
-            self.right_motor.stop('hold')
-
-        elif self.right_s_color.get_value('reflection') > self.black:
-
-            while self.right_s_color.get_value('reflection') > self.black:
-                self.left_motor.stop('hold')
-                self.right_motor.run(abs(speed))
-            self.drive.stop()
-            self.left_motor.stop('hold')
-            self.right_motor.stop('hold')
+        if self.sensor.get_value('reflection') < self.threshold:
 
             while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.white_back_sensors:
                 self.drive.drive(20, 0)
             self.drive.stop()
-            self.left_motor.stop('hold')
-            self.right_motor.stop('hold')
+            self.motor1.stop('hold')
+            self.motor2.stop('hold')
 
             while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.threshold:
                 self.drive.drive(-20, 0)
             self.drive.stop()
-            self.left_motor.stop('hold')
-            self.right_motor.stop('hold')
+            self.motor1.stop('hold')
+            self.motor2.stop('hold')
+
+        elif self.sensor2.get_value('reflection') > self.black:
+
+            while self.sensor2.get_value('reflection') > self.black:
+                self.motor1.stop('hold')
+                self.motor2.run(abs(speed))
+            self.drive.stop()
+            self.motor1.stop('hold')
+            self.motor2.stop('hold')
+
+            while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.white_back_sensors:
+                self.drive.drive(20, 0)
+            self.drive.stop()
+            self.motor1.stop('hold')
+            self.motor2.stop('hold')
+
+            while self.left_s_color.get_value('reflection') and self.right_s_color.get_value('reflection') < self.threshold:
+                self.drive.drive(-20, 0)
+            self.drive.stop()
+            self.motor1.stop('hold')
+            self.motor2.stop('hold')

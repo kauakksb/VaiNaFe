@@ -17,36 +17,24 @@ class ClassMotor:
     def run(self, speed):
         self.motor.run(speed)
 
+    # Move um motor grande do robõ por uma distância definida
     def run_dist(self, speed, dist, stop_type = 'hold'):
         self.motor.reset_angle(0)
         pi = 3.14
 
+        if dist > 0:
+
+            while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+                self.motor.run(speed)
+
+        elif dist < 0:
+            while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+                self.motor.run(speed)
+
         if stop_type == 'hold':
-
-            if dist > 0:
-
-                while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
-                    self.motor.run(speed)
-                self.stop('hold')
-
-            if dist < 0:
-                while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
-                    self.motor.run(speed)
-                self.stop('hold')
-
-        if stop_type == 'stop':
-
-            if dist > 0:
-
-                while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
-                    self.motor.run(speed)
-                self.stop('stop')
-
-            if dist < 0:
-                while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
-                    self.motor.run(speed)
-                self.stop('stop')
-
+            self.motor.stop('hold')
+        elif stop_type == 'stop':
+            selfmotor,stop('stop')
 
     # Correndo com detecção de parada inifito até detectar
     def run_with_detection_stop_infinity(self, speed, torque):
@@ -55,7 +43,8 @@ class ClassMotor:
     # Correndo com detecção de parada inifito até detectar ou cumprir o limite de ângulo
     def run_with_detection_stop_and_drop(self, speed, torque, degree):
         pass
-
+    
+    # Move um motor médio do robô por um número determinado de graus
     def move_grab(self,speed,degree):
         self.reset_angle()
         if speed > 0:
