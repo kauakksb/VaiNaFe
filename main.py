@@ -280,7 +280,7 @@ class Robot:
             self.left_g_motor.stop('hold')
 
         threading.Thread(target = moving_grab_6).start()
-        self.drive.run_straight(-730, 1000)
+        self.drive.run_straight(-720, 1000)
         thing = True
 
     def run_while_moving_grab_7(self):
@@ -310,7 +310,7 @@ class Robot:
         wait(100)
         self.drive.turn_angle(9.5, 150)
         wait(100)
-        self.drive.run_straight(105, 70)
+        self.drive.run_straight(120, 70)
         wait(100)
         self.drive.run_straight(-480, 900)
 
@@ -370,11 +370,11 @@ class Robot:
 
         # Abaixa a garra, prende a roda do remo, se posiciona através da linhas guias e se move para colocar a roda no circulo
         self.left_g_motor.run_with_detection_stop_infinity(-1500,75)
-        self.left_g_motor.move_grab(1500, 75)
+        self.left_g_motor.move_grab(1500, 110)
         self.drive.run_until_line(-75,self.right_s_color,self.black, 'stop')
         self.drive.run_until_line(-50,self.right_s_color,self.white_back_sensors)
         self.drive.gyro_turn(100, 36)
-        self.drive.run_straight(27.5,50)
+        self.drive.run_straight(24,50)
         self.left_g_motor.run_with_detection_stop_infinity(1500,65)
 
         # Faz uma curva e dá ré até a linha guia onde posiciona-se e volta para a área de lançamento
@@ -383,20 +383,7 @@ class Robot:
         self.drive.run_until_line(-100, self.right_s_color, 60, 'stop')
         self.drive.run_until_line(-75, self.right_s_color, 12)
         self.drive.gyro_turn(100, -30)
-        self.drive.run_until_line(-200, self.left_s_color, 10,'stop')
-        self.drive.run_until_line(-100, self.left_s_color, 70)
-        self.drive.run_straight(-180, 350)
-        self.left_t_motor.stop('hold')
-        self.right_t_motor.stop('hold')
-        self.drive.gyro_turn(100, 40)
-        self.drive.run_until_line(100, self.right_s_color, 10, 'stop')
-        self.drive.run_until_line(75, self.right_s_color, 75)
-        self.drive.run_until_line(50, self.right_s_color, 40)
-        self.left_g_motor.move_grab(-1500, 350)
-        self.drive.run_straight(-150, 150)
-        self.drive.run_straight(150, 150)
-        self.drive.gyro_turn(100, -40)
-        self.drive.pid_run_straight(-1000,900, 'stop')
+        self.drive.pid_run_straight(-1700,900, 'stop')
         
     # Função de lançamento Quatro
     def launch_four(self):
@@ -460,16 +447,16 @@ class Robot:
         self.drive.run_straight(35,100)
         self.left_g_motor.move_grab(-1500, 1250)
         wait(500)
-        self.drive.run_straight(-60, 200)
+        self.drive.run_straight(-57.5, 200)
         self.drive.gyro_turn(175, -5.25)
         self.drive.turn_angle(30, 200)
         self.drive.run_straight(50, 200)
         self.drive.run_until_line(75, self.front_s_color, self.black, 'stop')
         self.drive.turn_angle(-32.5, 200)
-        self.drive.line_follow(75, 25)
+        self.drive.line_follow(100, 33)
         self.drive.run_straight(80, 600)
         self.drive.run_until_line(125, self.left_s_color, 75)
-        self.drive.run_straight(-50, 200)
+        self.drive.run_straight(-65, 200)
         self.right_g_motor.move_grab(1500, 350)
         wait(1000)
         self.left_t_motor.stop('hold')
@@ -478,27 +465,38 @@ class Robot:
         self.drive.run_until_line(-100, self.right_s_color, 10)
         self.gyro_sensor.reset_angle()
         
-        while self.gyro_sensor.get_gyro_angle() < 127.5:
-            self.left_t_motor.run(-125)
-            self.right_t_motor.run(125)
+        while self.gyro_sensor.get_gyro_angle() < 90:
+            self.left_t_motor.run(-100)
+            self.right_t_motor.run(100)
         self.left_t_motor.stop('hold')
         self.right_t_motor.stop('hold')
 
-        self.drive.run_straight(360, 600)
+        self.drive.run_until_line(125, self.right_s_color, 70, 'stop')
+        self.drive.run_until_line(100, self.right_s_color, 10, 'stop')
+        self.drive.run_until_line(75, self.right_s_color, 70)
+        self.gyro_sensor.reset_angle()
+
+        while self.gyro_sensor.get_gyro_angle() < 39:
+            self.left_t_motor.run(-100)
+            self.right_t_motor.run(100)
+        self.left_t_motor.stop('hold')
+        self.right_t_motor.stop('hold')
+
+        self.drive.run_straight(355, 600)
         self.left_g_motor.reset_angle()
-        self.left_g_motor.move_grab(-1500, 2900)
-        self.left_g_motor.move_grab(-1500, 150)
-        self.drive.run_until_line(-100, self.left_s_color, 75)
-        self.drive.run_until_line(-75, self.left_s_color)
+        self.left_g_motor.move_grab(-1500, 2850)
+        self.left_g_motor.move_grab(1500, 250)
+        self.drive.run_straight(-180, 200)
         wait(500)
-        self.drive.gyro_turn(150, 42.5)
+        self.drive.gyro_turn(150, 38)
         self.drive.run_straight( 1000, 500)
 
 
     def launch_five(self):
         self.gyro_sensor.reset_angle()
         self.drive.run_straight(1150, 500)
-        self.drive.move_robot_to_0(100)
+        angle = self.gyro_sensor.get_gyro_angle()
+        self.drive.turn_angle(angle, 100)
         self.drive.turn_angle(30, 400)
         self.left_t_motor.stop('hold')
         self.right_t_motor.stop('hold')
