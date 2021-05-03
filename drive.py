@@ -141,7 +141,6 @@ class ClassDriveBase:
 
     # Move-se de forma retilínea até identificar uma cor definida
     def run_until_line(self, speed, sensor, line, stop_type = 'hold'):
-        self.set_speed(speed)
 
         if line < 30:
             while sensor.get_value('reflection') > line:
@@ -191,24 +190,28 @@ class ClassDriveBase:
 
 
     def motor_line_turn(self, speed, motor, sensor, line, stop_type = 'hold'):
-        
-        if motor == 'left_motor':
-            motor1 = self.left_motor
-            motor2 = self.right_motor
 
-        elif motor == 'right_motor':
-            motor1 = self.right_motor
-            motor2 = self.left_motor
-    
-        if line < 30:
-            while sensor.get_value('reflection') > line:
-                self.motor2.stop('hold')
-                self.motor1.run(speed)
+        if motor == 'left_motor':
+            if line < 30:
+                while sensor.get_value('reflection') > line:
+                    self.right_motor.stop('hold')
+                    self.left_motor.run(speed)
             
-        elif line > 30:
-            while sensor.get_value('reflection') < line:
-                self.motor2.stop('hold')
-                self.motor1.run(speed)
+            elif line > 30:
+                while sensor.get_value('reflection') < line:
+                    self.right_motor.stop('hold')
+                    self.left_motor.run(speed)
+           
+        elif motor == 'right_motor':
+            if line < 30:
+                while sensor.get_value('reflection') > line:
+                    self.left_motor.stop('hold')
+                    self.right_motor.run(speed)
+            
+            elif line > 30:
+                while sensor.get_value('reflection') < line:
+                    self.left_motor.stop('hold')
+                    self.right_motor.run(speed)
 
         if stop_type == 'hold':
             self.drive.stop()
@@ -260,6 +263,13 @@ class ClassDriveBase:
                 self.error_correction = kp * (deviation + ki * integral + kd * derivate)
                 self.drive.drive(speed,self.error_correction)
 
+        elif distance < 0:
+
+            while distance < self.drive.distance():
+                deviation = self.gyro_sensor.get_gyro_angle() - target 
+                self.error_correction = kp * deviation 
+                self.drive.drive(-speed,self.error_correction)
+
             if stop_type == 'hold':
                 self.drive.stop()
                 self.left_motor.stop('hold')
@@ -267,15 +277,6 @@ class ClassDriveBase:
 
             elif stop_type == 'stop':
                 self.drive.stop()
-
-        elif distance < 0:
-            while distance < self.drive.distance():
-                deviation = self.gyro_sensor.get_gyro_angle() - target 
-                self.error_correction = kp * deviation 
-                self.drive.drive(speed,self.error_correction)
-            self.drive.stop()
-            self.left_motor.stop('hold')
-            self.right_motor.stop('hold')
 
 
     def move_robot_to_0(self, speed ):
@@ -289,78 +290,29 @@ class ClassDriveBase:
             self.drive.stop()
 
         if self.gyro_sensor.get_gyro_angle() < 0:
-            while self.gyro_sensor.get_gyro_angle():
+            while self.gyro_sensor.get_gyro_angle() < target:
                 self.left_motor.run(-speed)
                 self.right_motor.run(speed)
             self.drive.stop()
 
 
-    def gyro_turn(self, fmin, fmax, degree):
+    def gyro_turn(self, speed, degree):
         self.gyro_sensor.reset_angle()
         
-        variation = fmax - fmin
-        rate_of_change = (degree * 0.5) / variation
-        i = 0
-
-        speed = fmin
-
         if degree > 0:
-
-            while self.gyro_sensor.get_gyro_angle() < degree * 0.5:
-                self.left_motor.run(-speed)
-                self.right_motor.run(speed)
-
-                while self.gyro_sensor.get_gyro_angle() < rate_of_change * (i + 1):
-                    pass
-                    
-                while i < variation:
-                    speed += 1
-                    i += 1
-
-            speed = fmax
-            i = 0
 
             while self.gyro_sensor.get_gyro_angle() < degree:
                 self.left_motor.run(-speed)
                 self.right_motor.run(speed)
-
-                while self.gyro_sensor.get_gyro_angle() < rate_of_change * (i + 1) + degree*0.5:
-                    pass
-                    
-                while i < variation:   
-                    speed -= 1
-                    i += 1
-            
             self.drive.stop()
             self.left_motor.stop('hold')
             self.right_motor.stop('hold')
 
         elif degree < 0:
 
-            while self.gyro_sensor.get_gyro_angle() > degree * 0.5:
-                self.left_motor.run(speed)
-                self.right_motor.run(-speed)
-
-            while abs(self.gyro_sensor.get_gyro_angle()) < abs(rate_of_change) * (i + 1):
-                pass
-                
-            while i < variation:
-                speed += 1
-                i += 1
-
-            speed = fmax
-            i = 0
-
             while self.gyro_sensor.get_gyro_angle() > degree:
                 self.left_motor.run(speed)
                 self.right_motor.run(-speed)
-
-                while abs(self.gyro_sensor.get_gyro_angle()) < abs(rate_of_change) * (i + 1) + abs(degree)*0.5:
-                    pass
-                    
-                while i < variation:   
-                    speed -= 1
-                    i += 1
             
             self.drive.stop()
             self.left_motor.stop('hold')
