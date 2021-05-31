@@ -17,6 +17,9 @@ class ClassMotor:
     def run(self, speed):
         self.motor.run(speed)
 
+    def dc(self, force):
+        self.motor.dc(force)
+
     # Move um motor grande do robõ por uma distância definida
     def run_dist(self, speed, dist, stop_type = 'hold'):
         self.motor.reset_angle(0)
@@ -47,14 +50,20 @@ class ClassMotor:
     # Move um motor médio do robô por um número determinado de graus
     def move_grab(self,speed,degree):
         self.reset_angle()
+
+        # Se move para cada lado dependendo do sinal da velocidade, se é negativo ou positivo
+
+        # Se a velocidade for positiva
         if speed > 0:
-            while self.motor.angle() < degree:
+            while self.motor.angle() < degree: # Move o motor enquanto o valor de graus dele for menor que o determinado
                 self.motor.run(speed)
-            self.stop('stop')
+            self.stop('stop') # Interrompe o movimento do motor
+
+        # Se a velocidade for negativa
         else:
-            while self.motor.angle() > degree*-1:
+            while self.motor.angle() > degree*-1: # Move o motor enquanto o valor de graus dele for maior que o determinado
                 self.motor.run(speed)
-            self.stop('stop')
+            self.stop('stop') # Interrompe o movimento do motor
 
     # Retorna a velocidade atual do motor
     def get_speed(self):

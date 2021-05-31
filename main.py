@@ -88,7 +88,7 @@ class Robot:
             elif Button.RIGHT in buttons_pressed:
                 self.launch_four() # Lançamento quatro
             elif Button.CENTER in buttons_pressed:
-               self.launch_five() # Lançamento cinco
+               self.new_launch_three() # Lançamento cinco
             
             wait(100) # Tempo de 200ms para a não ativação desproposital de alguma função
 
@@ -296,6 +296,34 @@ class Robot:
         self.drive.line_follow(100, 30, 'stop')
         thing = True
 
+    def run_while_moving_grab_8(self):
+
+        global thing
+        thing = False
+
+        def moving_grab_8():
+            while thing == False:
+                self.left_g_motor.run(-350)
+            self.left_g_motor.stop('hold')
+
+        threading.Thread(target = moving_grab_8).start()
+        self.drive.newton(30, 90, 1000)
+        thing = True
+
+    def run_while_moving_grab_9(self):
+
+        global thing
+        thing = False
+
+        def moving_grab_9():
+            while thing == False:
+                self.left_g_motor.run(350)
+            self.left_g_motor.stop('hold')
+
+        threading.Thread(target = moving_grab_9).start()
+        self.drive.newton(30, 90, 1000)
+        thing = True    
+
 
     
     # Função de lançamento Um
@@ -332,7 +360,7 @@ class Robot:
 
         """ Robô se move para frente com velocidade constante e finaliza o movimento com os motoresse movendo 
             livremente, fazendo com que o atrito e a resistência do ar reduzam sua velocidade."""
-        self.drive.pid_run_straight(550,1000, 'stop')
+        self.drive.pid_run_straight(700,1000, 'stop')
         wait(1000)
         self.drive.run_until_line(175,self.right_s_color,8, 'stop') # Locomove-se para frente até a linha preta
         wait(100)
@@ -387,6 +415,8 @@ class Robot:
         
     # Função de lançamento Quatro
     def launch_four(self):
+
+        # Robô sai da base e se posiciona para ir em direção à missão compartilhada
         self.drive.run_straight(500, 1500)
         self.drive.turn_angle(-50, 1000)
         self.drive.line_follow(125, 33, 'stop')
@@ -530,9 +560,138 @@ class Robot:
         
 
     def launch_test(self):
-        self.drive.gyro_turn(75, 600, 90)
+        self.drive.run_straight(10000, 500)
+
+    def new_launch_three(self):
+        self.gyro_sensor.reset_angle()
+        self.drive.newton(10, 95, 950)
+        self.drive.run_until_line(100, self.left_s_color, 60)
+        self.drive.run_until_line(100, self.left_s_color, 10)
+
+        if self.front_s_color.get_value('reflection') > 10:
+
+            if self.front_s_color.get_value('reflection') < 40:
+                self.drive.gyro_turn()
+                self.drive.line_follow(125, 30, 'stop')
+                self.drive.newton(10, 95, 300)
+                self.drive.run_until_line(80, self.left_s_color,65)
+                self.drive.run_until_line(80, self.left_s_color,10)
+                
+            elif self.front_s_color.get_value('reflection') > 55:
+                self.drive.line_follow(125, 30, 'stop')
+                self.drive.newton(10, 95, 300)
+                self.drive.run_until_line(80, self.left_s_color,65)
+                self.drive.run_until_line(80, self.left_s_color,10)
+
+        elif self.front_s_color.get_value('reflection') < 10:
+            self.drive.line_follow(125, 30, 'stop')
+            self.drive.newton(10, 95, 300)
+            self.drive.run_until_line(80, self.left_s_color,65)
+            self.drive.run_until_line(80, self.left_s_color,10)
+
+        if self.left_s_color.get_value('reflection') < 10:
+            self.drive.run_during_line(-50,self.left_s_color,self.black)
+            self.drive.run_during_line(-50,self.left_s_color,self.white_back_sensors)
+            self.drive.run_straight(-175,75)
         
-    
+        elif self.left_s_color.get_value('reflection') > 30:
+            self.drive.run_during_line(-50,self.left_s_color,self.white_back_sensors)
+            self.drive.run_straight(-175,75)
+
+        self.drive.gyro_turn(20, 60, 30)
+        
+        self.drive.run_until_line(75, self.right_s_color, 10, 'stop')
+        self.drive.run_until_line(25, self.right_s_color, 60, 'hold')
+        self.drive.run_until_line(50, self.right_s_color, 10, 'stop')
+        self.drive.run_until_line(25, self.right_s_color, 50, 'hold')
+
+        # self.left_g_motor.run_with_detection_stop_infinity(1500, 65)
+        # self.drive.gyro_turn()
+        # self.left_g_motor.move_grab(-1500, 250)
+        # self.drive.gyro_turn()
+        # self.drive.newton()
+        # self.drive.run_until_line(-100, self.right_s_color, 10, 'hold')
+        # self.drive.motor_line_turn(-125, 'left_motor', self.left_s_color, 10, 'hold')
+
+        # if self.right_s_color.get_value('reflection') > 10:
+
+        #     while self.right_s_color.get_value('reflection') > 9:
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.run(50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        #     while self.right_s_color.get_value('reflection') < 65:
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.run(50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        #     while self.left_s_color.get_value('reflection') < 65:
+        #         self.right_t_motor.stop('hold')
+        #         self.left_t_motor.run(50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        # elif self.right_s_color.get_value('reflection') < 10:
+
+        #     while self.right_s_color.get_value('reflection') < 65:
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.run(50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        #     while self.left_s_color.get_value('reflection') < 65:
+        #         self.right_t_motor.stop('hold')
+        #         self.left_t_motor.run(50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        # self.drive.newton(15, 100, 425)
+        
+        # '''definir qual estratégia tomar para se posicionar no levantamento de peso'''
+
+        # self.drive.newton()
+        # self.drive.run_until_line(-75, self.front_s_color, 70, 'hold')
+        # self.drive.gyro_turn(5, 95, )
+        # self.drive.line_follow() # Possibilitar ré no seguir linha
+        # self.drive.run_until_line(125, self.left_s_color, 10)
+        # self.drive.newton()
+
+        # self.right_g_motor.move_grab(-750, 250)
+
+        # self.drive.newton(-15, -100, 720)
+
+        # self.drive.run_until_line(-100, self.right_s_color, 10)
+        # self.gyro_sensor.reset_angle()
+        
+        # while self.gyro_sensor.get_gyro_angle() < 90:
+        #     self.left_t_motor.run(-100)
+        #     self.right_t_motor.run(100)
+        # self.left_t_motor.stop('hold')
+        # self.right_t_motor.stop('hold')
+
+        # self.drive.run_until_line(125, self.right_s_color, 70, 'stop')
+        # self.drive.run_until_line(100, self.right_s_color, 10, 'stop')
+        # self.drive.run_until_line(75, self.right_s_color, 70)
+        # self.gyro_sensor.reset_angle()
+
+        # while self.gyro_sensor.get_gyro_angle() < 39:
+        #     self.left_t_motor.run(-100)
+        #     self.right_t_motor.run(100)
+        # self.left_t_motor.stop('hold')
+        # self.right_t_motor.stop('hold')
+
+        # self.drive.run_straight(355, 600)
+        # self.left_g_motor.reset_angle()
+        # self.left_g_motor.move_grab(-1500, 2850)
+        # self.left_g_motor.move_grab(1500, 250)
+        # self.drive.run_straight(-180, 200)
+        # wait(500)
+        # self.drive.gyro_turn(10, 70, 38)
+        # self.drive.run_straight( 1000, 500)
+
+        
     # Retornando o valor de voltagem e corrente da bateria
     def get_battery(self) -> list:
         return [self.brick.battery.voltage(), self.brick.battery.current()]
