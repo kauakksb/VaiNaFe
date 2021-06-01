@@ -579,7 +579,7 @@ class Robot:
                 
             elif self.front_s_color.get_value('reflection') > 55:
                 self.drive.line_follow(125, 30, 'stop')
-                self.drive.newton(10, 95, 300)
+                self.drive.newton(10, 75, 300)
                 self.drive.run_until_line(80, self.left_s_color,65)
                 self.drive.run_until_line(80, self.left_s_color,10)
 
@@ -590,26 +590,26 @@ class Robot:
             self.drive.run_until_line(80, self.left_s_color,10)
 
         if self.left_s_color.get_value('reflection') < 10:
-            self.drive.run_during_line(-50,self.left_s_color,self.black)
-            self.drive.run_during_line(-50,self.left_s_color,self.white_back_sensors)
-            self.drive.run_straight(-175,75)
+            self.drive.run_during_line(-75,self.left_s_color,self.black)
+            self.drive.run_during_line(-75,self.left_s_color,self.white_back_sensors)
+            self.drive.run_straight(-175,125)
         
         elif self.left_s_color.get_value('reflection') > 30:
-            self.drive.run_during_line(-50,self.left_s_color,self.white_back_sensors)
-            self.drive.run_straight(-175,75)
+            self.drive.run_during_line(-75,self.left_s_color,self.white_back_sensors)
+            self.drive.run_straight(-175,125)
 
-        self.drive.gyro_turn(20, 60, 30)
+        self.drive.gyro_turn(20, 60, 25)
         
         self.drive.run_until_line(75, self.right_s_color, 10, 'stop')
-        self.drive.run_until_line(25, self.right_s_color, 60, 'hold')
+        self.drive.run_until_line(75, self.right_s_color, 60, 'stop')
         self.drive.run_until_line(50, self.right_s_color, 10, 'stop')
-        self.drive.run_until_line(25, self.right_s_color, 50, 'hold')
+        self.drive.run_until_line(-25, self.right_s_color, 60, 'hold')
 
         # self.left_g_motor.run_with_detection_stop_infinity(1500, 65)
-        # self.drive.gyro_turn()
+        # self.drive.gyro_turn(15, 60, 32.5)
         # self.left_g_motor.move_grab(-1500, 250)
-        # self.drive.gyro_turn()
-        # self.drive.newton()
+        # self.drive.gyro_turn(15, 70, -57.5)
+        # self.drive.newton(15, 65, -75)
         # self.drive.run_until_line(-100, self.right_s_color, 10, 'hold')
         # self.drive.motor_line_turn(-125, 'left_motor', self.left_s_color, 10, 'hold')
 
@@ -633,6 +633,18 @@ class Robot:
         #     self.left_t_motor.stop('hold')
         #     self.right_t_motor.stop('hold')
 
+        #     while self.right_s_color.get_value('reflection') < 40:
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.run(-50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        #     while self.left_s_color.get_value('reflection') < 40:
+        #         self.right_t_motor.stop('hold')
+        #         self.left_t_motor.run(-50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
         # elif self.right_s_color.get_value('reflection') < 10:
 
         #     while self.right_s_color.get_value('reflection') < 65:
@@ -644,6 +656,18 @@ class Robot:
         #     while self.left_s_color.get_value('reflection') < 65:
         #         self.right_t_motor.stop('hold')
         #         self.left_t_motor.run(50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        #     while self.right_s_color.get_value('reflection') < 40:
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.run(-50)
+        #     self.left_t_motor.stop('hold')
+        #     self.right_t_motor.stop('hold')
+
+        #     while self.left_s_color.get_value('reflection') < 40:
+        #         self.right_t_motor.stop('hold')
+        #         self.left_t_motor.run(-50)
         #     self.left_t_motor.stop('hold')
         #     self.right_t_motor.stop('hold')
 

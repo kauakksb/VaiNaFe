@@ -71,8 +71,8 @@ class ClassDriveBase:
         self.drive.settings(self.straight_rate, self.straight_acceleration, self.turn_rate, self.turn_acceleration)
 
     # Definindo a propriedade de aceleração na reta
-    def set_acceleration(self, straight_acceleraton):
-        self.straight_acceleraton = straight_acceleraton
+    def set_acceleration(self, straight_acceleration):
+        self.straight_acceleration = straight_acceleration
         self.drive.settings(self.straight_rate, self.straight_acceleration, self.turn_rate, self.turn_acceleration)
 
     # Definindo a propriedade de velocidade de curva
@@ -656,3 +656,157 @@ class ClassDriveBase:
             self.drive.stop()
             motor1.stop('hold')
             motor2.stop('hold')
+
+    def desacceleration(self, dist, line, forca_min, forca_max, sensor):
+
+        variation = forca_max - forca_min
+        factor = dist / variation
+        speed = forca_max
+        final_force = forca_min
+        i = 0
+
+        if dist > 0:
+        
+            if line < 10:
+                while sensor.get_value('reflection') > line:
+                    self.left_motor.dc(speed)
+                    self.right_motor.dc(speed)
+                
+                self.reset()
+
+                while self.drive.distance() < dist:
+
+                    while self.drive.distance() < factor * (1+i):
+                        self.left_motor.dc(speed)
+                        self.right_motor.dc(speed)
+
+                    i+=1
+                    speed -= 1
+
+                self.drive.stop()
+                self.left_motor.stop('hold')
+                self.right_motor.stop('hold')
+
+            elif line > 10:
+                
+                while sensor.get_value('reflection') < line:
+                    self.left_motor.dc(speed)
+                    self.right_motor.dc(speed)
+            
+                self.reset()
+                while self.drive.distance() < dist:
+
+                    while self.drive.distance() < factor * (1+i):
+                        self.left_motor.dc(speed)
+                        self.right_motor.dc(speed)
+
+                    i+=1
+                    speed -= 1
+
+                self.drive.stop()
+                self.left_motor.stop('hold')
+                self.right_motor.stop('hold')
+
+        elif dist < 0:
+
+            if dist > 0:
+        
+                if line < 10:
+                    while sensor.get_value('reflection') > line:
+                        self.left_motor.dc(-speed)
+                        self.right_motor.dc(-speed)
+                    
+                    self.reset()
+                    while self.drive.distance() < dist:
+
+                        while self.drive.distance() < factor * (1+i):
+                            self.left_motor.dc(-speed)
+                            self.right_motor.dc(-speed)
+                        
+                        i+=1
+                        speed -= 1
+
+                    self.drive.stop()
+                    self.left_motor.stop('hold')
+                    self.right_motor.stop('hold')
+
+                elif line > 10:
+                    
+                    while sensor.get_value('reflection') < line:
+                        self.left_motor.dc(-speed)
+                        self.right_motor.dc(-speed)
+                
+                    self.reset()
+                    while self.drive.distance() < dist:
+
+                        while self.drive.distance() < factor * (1+i) *-1:
+                            self.left_motor.dc(-speed)
+                            self.right_motor.dc(-speed)
+
+                        i+=1
+                        speed -= 1
+
+                    self.drive.stop()
+                    self.left_motor.stop('hold')
+                    self.right_motor.stop('hold')
+
+        
+    def line_correction(self, speed, inicial_line, sensor):
+
+        if self.right_s_color.get_value('reflection') > 10:
+
+            while self.right_s_color.get_value('reflection') > 9:
+                self.left_t_motor.stop('hold')
+                self.right_t_motor.run(50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.right_s_color.get_value('reflection') < 65:
+                self.left_t_motor.stop('hold')
+                self.right_t_motor.run(50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.left_s_color.get_value('reflection') < 65:
+                self.right_t_motor.stop('hold')
+                self.left_t_motor.run(50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.right_s_color.get_value('reflection') < 40:
+                self.left_t_motor.stop('hold')
+                self.right_t_motor.run(-50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.left_s_color.get_value('reflection') < 40:
+                self.right_t_motor.stop('hold')
+                self.left_t_motor.run(-50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+        elif self.right_s_color.get_value('reflection') < 10:
+
+            while self.right_s_color.get_value('reflection') < 65:
+                self.left_t_motor.stop('hold')
+                self.right_t_motor.run(50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.left_s_color.get_value('reflection') < 65:
+                self.right_t_motor.stop('hold')
+                self.left_t_motor.run(50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.right_s_color.get_value('reflection') < 40:
+                self.left_t_motor.stop('hold')
+                self.right_t_motor.run(-50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
+
+            while self.left_s_color.get_value('reflection') < 40:
+                self.right_t_motor.stop('hold')
+                self.left_t_motor.run(-50)
+            self.left_t_motor.stop('hold')
+            self.right_t_motor.stop('hold')
