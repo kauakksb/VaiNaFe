@@ -11,6 +11,7 @@ from motor import ClassMotor
 from drive import ClassDriveBase
 from sensor import ClassColorSensor, ClassGyroSensor
 import threading
+import time
 
 tiny_font = Font(size = 16, bold = True)
 
@@ -88,7 +89,7 @@ class Robot:
             elif Button.RIGHT in buttons_pressed:
                 self.launch_four() # Lançamento quatro
             elif Button.CENTER in buttons_pressed:
-               self.new_launch_three() # Lançamento cinco
+               self.launch_five() # Lançamento cinco
             
             wait(100) # Tempo de 200ms para a não ativação desproposital de alguma função
 
@@ -204,6 +205,18 @@ class Robot:
             self.brick.screen.clear()
 
 
+    def corrections(self, movement):
+
+        if movement == 'move_grab':
+            def verification():
+                conditional = False
+
+                while conditional == False:
+                    factor = degree/ speed
+                    motor_angle = self.motor.get_angle()
+                    variation = factor - motor_angle
+                    time.sleep(0.1)
+
 
     def run_while_moving_grab_1(self):
         global thing
@@ -215,7 +228,7 @@ class Robot:
             self.right_g_motor.stop('stop')
 
         threading.Thread(target = moving_grab).start()
-        self.drive.run_until_line(200, self.left_s_color, self.white_back_sensors)
+        self.drive.run_until_line(200, self.left_s_color, 10)
         thing = True
 
     def run_while_moving_grab_2(self):
@@ -293,38 +306,47 @@ class Robot:
             self.left_g_motor.stop('hold')
 
         threading.Thread(target = moving_grab_7).start()
-        self.drive.line_follow(100, 30, 'stop')
+        self.drive.line_follow(200, 50, 'stop', 1.8)
         thing = True
 
     def run_while_moving_grab_8(self):
-
         global thing
         thing = False
 
         def moving_grab_8():
             while thing == False:
-                self.left_g_motor.run(-350)
+                self.left_g_motor.run(-1500)
             self.left_g_motor.stop('hold')
 
         threading.Thread(target = moving_grab_8).start()
-        self.drive.newton(30, 90, 1000)
+        self.drive.run_straight(-175, 125)
         thing = True
 
     def run_while_moving_grab_9(self):
-
         global thing
         thing = False
 
         def moving_grab_9():
             while thing == False:
-                self.left_g_motor.run(350)
-            self.left_g_motor.stop('hold')
+                self.left_g_motor.run(1500)
+            self.left_g_motor.stop('stop')
 
         threading.Thread(target = moving_grab_9).start()
-        self.drive.newton(30, 90, 1000)
-        thing = True    
+        self.right_g_motor.move_grab(-1500, 800)
+        thing = True
 
+    def run_while_moving_grab_10(self):
+        global thing
+        thing = False
 
+        def moving_grab_10():
+            while thing == False:
+                self.left_g_motor.run(1500)
+            self.left_g_motor.stop('stop')
+
+        threading.Thread(target = moving_grab_10).start()
+        self.drive.run_straight(-240, 500)
+        thing = True
     
     # Função de lançamento Um
 
@@ -346,9 +368,12 @@ class Robot:
     """ Robô vai para frente, no rumo do escorregador, para que o anexo remova os bonequinhos. Em seguida 
         locomove-se para trás, assim, voltando para a área de lançamento. """
     def launch_two(self):
-        self.drive.run_straight(500, 900)
-        self.drive.run_straight(250, 900)
-        self.drive.run_straight(-800, 900)
+        self.drive.run_straight(750, 900)
+        self.right_g_motor.move_grab(-1.125, 5)
+        self.right_g_motor.stop('hold')
+        self.drive.run_straight(-125, 900)
+        wait(10)
+        self.drive.run_straight(-725, 900)
 
     # Função de lançamento Três
     def launch_three(self):
@@ -523,155 +548,130 @@ class Robot:
 
 
     def launch_five(self):
-        self.gyro_sensor.reset_angle()
-        self.drive.run_straight(1150, 500)
-        angle = self.gyro_sensor.get_gyro_angle()
-        self.drive.turn_angle(angle, 100)
-        self.drive.turn_angle(30, 400)
-        self.left_t_motor.stop('hold')
-        self.right_t_motor.stop('hold')
-        self.drive.run_until_line(-125, self.left_s_color, 10, 'stop')
-        self.drive.run_until_line(-125, self.left_s_color, 70, 'stop')
-        self.drive.run_until_line(-100, self.left_s_color, 30)
-        self.left_t_motor.stop('hold')
-        self.right_t_motor.stop('hold')
-        self.drive.turn_angle(-30, 400)
-        self.drive.run_until_line(-150, self.right_s_color, 70)
-        self.drive.run_until_line(150, self.front_s_color, 10 )
-        self.drive.turn_angle(-90, 200)
-        self.left_t_motor.stop('hold')
-        self.right_t_motor.stop('hold')
-        self.drive.run_straight(-50, 100)
-        self.drive.run_until_line(100, self.left_s_color, 70, 'stop')
-        self.drive.run_until_line(100, self.left_s_color, 10)
-        self.left_g_motor.move_grab(-1500, 180)
+        # self.gyro_sensor.reset_angle()
+        # self.drive.set_rate(400)
+        # self.drive.set_acceleration(250)
+        # self.drive.run_straight(1150, 350)
+        # angle = self.gyro_sensor.get_gyro_angle()
+        # self.drive.turn_angle(angle, 100)
+        # self.drive.turn_angle(30, 400)
+        # self.left_t_motor.stop('hold')
+        # self.right_t_motor.stop('hold')
+        # self.drive.run_until_line(-125, self.left_s_color, 10, 'stop')
+        # self.drive.run_until_line(-125, self.left_s_color, 70, 'stop')
+        # self.drive.run_until_line(-100, self.left_s_color, 30)
+        # self.left_t_motor.stop('hold')
+        # self.right_t_motor.stop('hold')
+        # self.drive.turn_angle(-30, 400)
+        # self.drive.run_until_line(-150, self.right_s_color, 70)
+        # self.drive.run_until_line(150, self.front_s_color, 10 )
+        # self.drive.run_until_line(-150, self.front_s_color, 65)
+        # self.drive.turn_angle(-90, 200)
+        # self.left_t_motor.stop('hold')
+        # self.right_t_motor.stop('hold')
+        # self.drive.set_rate(1000)
+        # self.drive.set_acceleration(600)
+        # self.drive.run_straight(-50, 100)
+        # self.drive.run_straight(500, 1000)
+        # self.drive.run_until_line(100, self.left_s_color, 10)
+        self.run_while_moving_grab_9()
         wait(250)
-        self.drive.run_straight(415, 1000)
-        self.drive.turn_angle(-45, 750)
-        self.drive.run_straight(350, 1000)
-        self.left_t_motor.stop('hold')
-        self.right_t_motor.stop('hold')
+        self.run_while_moving_grab_10()
+        wait(250)
+        self.run_while_moving_grab_9()
+        self.left_g_motor.move_grab(1500, 360000)
+        # self.drive.run_until_line(100, self.left_s_color, 70, 'stop')
+        # self.drive.run_until_line(100, self.left_s_color, 10)
+        # self.left_g_motor.move_grab(-1500, 180)
+        # wait(250)
+        # self.drive.run_straight(415, 1000)
+        # self.drive.turn_angle(-45, 750)
+        # self.drive.run_straight(350, 1000)
+        # self.left_t_motor.stop('hold')
+        # self.right_t_motor.stop('hold')
 
-        i = 0
+        # i = 0
 
-        for i in range(10):
-            self.drive.run_straight(30, 300)
-            self.drive.run_straight(-30, 300)
+        # for i in range(10):
+        #     self.drive.run_straight(30, 300)
+        #     self.drive.run_straight(-30, 300)
         
 
     def launch_test(self):
-        self.drive.run_straight(10000, 500)
+        self.drive.line_follow(1400, 150)
 
     def new_launch_three(self):
         self.gyro_sensor.reset_angle()
-        self.drive.newton(10, 95, 950)
-        self.drive.run_until_line(100, self.left_s_color, 60)
-        self.drive.run_until_line(100, self.left_s_color, 10)
+        self.drive.newton(15, 90, 950, 0.10, 0.25, 1.8)
+        self.drive.run_until_line(100, self.right_s_color, 60)
+        self.drive.run_until_line(100, self.right_s_color, 10)
 
-        if self.front_s_color.get_value('reflection') > 10:
-
-            if self.front_s_color.get_value('reflection') < 40:
-                self.drive.gyro_turn()
-                self.drive.line_follow(125, 30, 'stop')
-                self.drive.newton(10, 95, 300)
-                self.drive.run_until_line(80, self.left_s_color,65)
-                self.drive.run_until_line(80, self.left_s_color,10)
+        self.drive.line_follow(100, 60, 'stop', -1.6)
+        self.drive.line_follow(25, 25, 'stop', -1.6)
+        self.drive.run_straight(140, 250)
+        self.drive.line_follow(160, 60, 'stop', 1.6)
+        self.drive.line_follow(50, 35, 'stop', 1.6)
+        self.run_while_moving_grab_1()
                 
-            elif self.front_s_color.get_value('reflection') > 55:
-                self.drive.line_follow(125, 30, 'stop')
-                self.drive.newton(10, 75, 300)
-                self.drive.run_until_line(80, self.left_s_color,65)
-                self.drive.run_until_line(80, self.left_s_color,10)
+        self.right_g_motor.move_grab(-1500, 4750)
+        wait(50)
+        self.left_g_motor.move_grab(1500, 750)
 
-        elif self.front_s_color.get_value('reflection') < 10:
-            self.drive.line_follow(125, 30, 'stop')
-            self.drive.newton(10, 95, 300)
-            self.drive.run_until_line(80, self.left_s_color,65)
-            self.drive.run_until_line(80, self.left_s_color,10)
-
-        if self.left_s_color.get_value('reflection') < 10:
-            self.drive.run_during_line(-75,self.left_s_color,self.black)
-            self.drive.run_during_line(-75,self.left_s_color,self.white_back_sensors)
-            self.drive.run_straight(-175,125)
+        if self.left_s_color.get_value('reflection') <= 10:
+            self.run_while_moving_grab_8()
         
-        elif self.left_s_color.get_value('reflection') > 30:
-            self.drive.run_during_line(-75,self.left_s_color,self.white_back_sensors)
-            self.drive.run_straight(-175,125)
+        elif self.left_s_color.get_value('reflection') >= 30:
+            self.run_while_moving_grab_8()
 
+        self.left_g_motor.run_with_detection_stop_infinity(-1500, 90)
         self.drive.gyro_turn(20, 60, 25)
+        self.left_g_motor.move_grab(1500, 360)
         
-        self.drive.run_until_line(75, self.right_s_color, 10, 'stop')
-        self.drive.run_until_line(75, self.right_s_color, 60, 'stop')
-        self.drive.run_until_line(50, self.right_s_color, 10, 'stop')
-        self.drive.run_until_line(-25, self.right_s_color, 60, 'hold')
+        self.drive.run_until_line(125, self.right_s_color, 10, 'stop')
+        self.drive.run_until_line(125, self.right_s_color, 40, 'hold')
+        
 
-        # self.left_g_motor.run_with_detection_stop_infinity(1500, 65)
-        # self.drive.gyro_turn(15, 60, 32.5)
-        # self.left_g_motor.move_grab(-1500, 250)
+        self.left_g_motor.run_with_detection_stop_infinity(-1500, 90)
+        self.drive.gyro_turn(15, 60, 32.5)
+        self.left_g_motor.move_grab(1500, 360)
         # self.drive.gyro_turn(15, 70, -57.5)
         # self.drive.newton(15, 65, -75)
         # self.drive.run_until_line(-100, self.right_s_color, 10, 'hold')
         # self.drive.motor_line_turn(-125, 'left_motor', self.left_s_color, 10, 'hold')
 
-        # if self.right_s_color.get_value('reflection') > 10:
-
-        #     while self.right_s_color.get_value('reflection') > 9:
-        #         self.left_t_motor.stop('hold')
-        #         self.right_t_motor.run(50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.right_s_color.get_value('reflection') < 65:
-        #         self.left_t_motor.stop('hold')
-        #         self.right_t_motor.run(50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.left_s_color.get_value('reflection') < 65:
-        #         self.right_t_motor.stop('hold')
-        #         self.left_t_motor.run(50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.right_s_color.get_value('reflection') < 40:
-        #         self.left_t_motor.stop('hold')
-        #         self.right_t_motor.run(-50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.left_s_color.get_value('reflection') < 40:
-        #         self.right_t_motor.stop('hold')
-        #         self.left_t_motor.run(-50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        # elif self.right_s_color.get_value('reflection') < 10:
-
-        #     while self.right_s_color.get_value('reflection') < 65:
-        #         self.left_t_motor.stop('hold')
-        #         self.right_t_motor.run(50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.left_s_color.get_value('reflection') < 65:
-        #         self.right_t_motor.stop('hold')
-        #         self.left_t_motor.run(50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.right_s_color.get_value('reflection') < 40:
-        #         self.left_t_motor.stop('hold')
-        #         self.right_t_motor.run(-50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
-
-        #     while self.left_s_color.get_value('reflection') < 40:
-        #         self.right_t_motor.stop('hold')
-        #         self.left_t_motor.run(-50)
-        #     self.left_t_motor.stop('hold')
-        #     self.right_t_motor.stop('hold')
+        # self.drive.line_correction(150, 'black', 'left_motor', 'back', 'front')
 
         # self.drive.newton(15, 100, 425)
+        # self.drive.run_until_line(100, self.right_s_color, 10)
+
+        # if self.left_s_color.get_value('reflection') > 15:
+
+        #     if self.gyro_sensor.get_gyro_angle() < 0:
+        #         while self.left_s_color.get_value('reflection') > 9:
+        #             self.right_t_motor.stop('hold')
+        #             self.left_t_motor.run(-100)
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.stop('hold')
+
+        #     elif self.gyro_sensor.get_gyro_angle() > 0:
+        #         while self.left_s_color.get_value('reflection') > 9:
+        #             self.right_t_motor.stop('hold')
+        #             self.left_t_motor.run(100)
+        #         self.left_t_motor.stop('hold')
+        #         self.right_t_motor.stop('hold')
+
+
+        # self.drive.line_correction(125, 'black', 'no one', 'no one', 'back')
+        # self.drive.run_until_line(-100, self.front_s_color, 10)
+        # self.drive.gyro_turn(10, 75, -75)
+        # self.left_g_motor.move_grab(1500, 250)
+        # self.drive.run_straight()
+        # self.drive.run_until_line()
+
+        # self.left_g_motor.move_grab(1500, 1900)
+        # self.left_g_motor.move_grab(-1500, 900)
+
+        # self.drive.gyro_turn(10, 60, 45)
         
         # '''definir qual estratégia tomar para se posicionar no levantamento de peso'''
 
@@ -707,9 +707,10 @@ class Robot:
         # self.right_t_motor.stop('hold')
 
         # self.drive.run_straight(355, 600)
+        # self.drive.run_straight(125, 100)
         # self.left_g_motor.reset_angle()
-        # self.left_g_motor.move_grab(-1500, 2850)
-        # self.left_g_motor.move_grab(1500, 250)
+        # self.left_g_motor.move_grab(1500, 2850)
+        # self.left_g_motor.move_grab(-1500, 250)
         # self.drive.run_straight(-180, 200)
         # wait(500)
         # self.drive.gyro_turn(10, 70, 38)
