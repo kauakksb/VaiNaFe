@@ -543,7 +543,7 @@ class ClassDriveBase:
             self.drive.stop()
 
 
-    def gyro_turn(self, forca_min, forca_max, degree, w = 0.2, w2 = 0.2):
+    def gyro_turn(self, forca_min, forca_max, degree, w = 0.2, w2 = 0.3):
         self.gyro_sensor.reset_angle()
 
         fmin = forca_min
@@ -569,7 +569,9 @@ class ClassDriveBase:
             i += 1
             fmin += 1
 
-            while self.gyro_sensor.get_gyro_angle() < mid_way: pass
+            while self.gyro_sensor.get_gyro_angle() < mid_way:
+                self.left_motor.dc(-fmax)
+                self.right_motor.dc(fmax)
 
             i = 0 
             
@@ -616,6 +618,27 @@ class ClassDriveBase:
             self.drive.stop()
             self.left_motor.stop('hold')
             self.right_motor.stop('hold')
+
+    def turn(self, speed, degree):
+        self.gyro_sensor.reset_angle()
+
+        if degree > 0:
+
+            while self.gyro_sensor.get_gyro_angle() < degree:
+                self.left_motor.run(-speed)
+                self.right_motor.run(speed)
+            self.drive.stop()
+            self.left_motor.stop('hold')
+            self.right_motor.stop('hold')
+
+        elif degree < 0:
+            while self.gyro_sensor.get_gyro_angle() > degree:
+                self.left_motor.run(speed)
+                self.right_motor.run(-speed)
+            self.drive.stop()
+            self.left_motor.stop('hold')
+            self.right_motor.stop('hold')
+
 
     def flip_flop(self, speed, motor, stop_type = 'hold'):
         self.gyro_sensor.reset_angle(0)
@@ -871,7 +894,7 @@ class ClassDriveBase:
 
             elif inicial_motor_correction == 'no one':
                 if inicial_correction == 'no one':
-                pass
+                    pass
 
                 
             if mid_final_correction == 'front':
@@ -882,7 +905,7 @@ class ClassDriveBase:
                 self.left_motor.stop('hold')
                 self.right_motor.stop('hold')
 
-                while right_s_color.get_value('reflection') < 65:
+                while self.right_s_color.get_value('reflection') < 65:
                     self.left_motor.stop('hold')
                     self.right_motor.run(speed)
                 self.left_motor.stop('hold')
@@ -908,7 +931,7 @@ class ClassDriveBase:
                 self.left_motor.stop('hold')
                 self.right_motor.stop('hold')
 
-                while right_s_color.get_value('reflection') < 65:
+                while self.right_s_color.get_value('reflection') < 65:
                     self.left_motor.stop('hold')
                     self.right_motor.run(-speed)
                 self.left_motor.stop('hold')
