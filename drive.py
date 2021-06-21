@@ -342,12 +342,14 @@ class ClassDriveBase:
                     last_error = deviation # Guarda o a última variação sofrieda pelo robô a fim de minimizar o próximo erro
                     derivate = deviation - last_error # Determina o valor de derivada na correção do robô
                     error_correction = kp * (deviation + ki * integral + kd * derivate) # Calcula correção a ser feita pelo
-                    if error_correction <= 0:
-                        self.left_motor.dc(fmin + error_correction)
+                    if deviation >= 0:
+                        print(self.gyro_sensor.get_gyro_angle())
+                        self.left_motor.dc(fmin + abs(error_correction))
                         self.right_motor.dc(fmin)
 
-                    elif error_correction >= 0:  
-                        self.right_motor.dc(fmin + error_correction)
+                    elif deviation <= 0: 
+                        print(self.gyro_sensor.get_gyro_angle()) 
+                        self.right_motor.dc(fmin + abs(error_correction))
                         self.left_motor.dc(fmin)
                     pass   
 
@@ -361,12 +363,14 @@ class ClassDriveBase:
                 last_error = deviation # Guarda o a última variação sofrieda pelo robô a fim de minimizar o próximo erro
                 derivate = deviation - last_error # Determina o valor de derivada na correção do robô
                 error_correction = kp * (deviation + ki * integral + kd * derivate) # Calcula correção a ser feita pelo
-                if error_correction <= 0:
-                    self.left_motor.dc(fmax + error_correction)
+                if deviation >= 0:
+                    print(self.gyro_sensor.get_gyro_angle())
+                    self.left_motor.dc(fmax + abs(error_correction))
                     self.right_motor.dc(fmax)
 
-                elif error_correction >= 0:  
-                    self.right_motor.dc(fmax + error_correction)
+                elif deviation <= 0: 
+                    print(self.gyro_sensor.get_gyro_angle()) 
+                    self.right_motor.dc(fmax + abs(error_correction))
                     self.left_motor.dc(fmax)
 
             i = 0
@@ -379,12 +383,14 @@ class ClassDriveBase:
                     last_error = deviation # Guarda o a última variação sofrieda pelo robô a fim de minimizar o próximo erro
                     derivate = deviation - last_error # Determina o valor de derivada na correção do robô
                     error_correction = kp * (deviation + ki * integral + kd * derivate) # Calcula correção a ser feita pelo
-                    if error_correction <= 0:
-                        self.left_motor.dc(fmax + error_correction)
+                    if deviation >= 0:
+                        print(self.gyro_sensor.get_gyro_angle())
+                        self.left_motor.dc(fmax + abs(error_correction))
                         self.right_motor.dc(fmax)
 
-                    elif error_correction >= 0:
-                        self.right_motor.dc(fmax + error_correction)
+                    elif deviation <= 0:
+                        print(self.gyro_sensor.get_gyro_angle())
+                        self.right_motor.dc(fmax + abs(error_correction))
                         self.left_motor.dc(fmax)
                     pass   
 
@@ -640,9 +646,9 @@ class ClassDriveBase:
             self.right_motor.stop('hold')
 
 
-    def flip_flop(self, speed, motor, stop_type = 'hold'):
-        self.gyro_sensor.reset_angle(0)
+    def flip_flop(self, speed, motor, correction,stop_type = 'hold'):
         self.left_motor.reset_angle(0)
+        self.right_motor.reset_angle()
         pi = 3.14
         axle_track = 121
         distance_between_sensors = 145 
@@ -662,35 +668,74 @@ class ClassDriveBase:
             motor1 = self.right_motor
             motor2 = self.left_motor
             sensor = self.right_s_color
+        
+        self.gyro_sensor.reset_angle()
 
-        while self.sensor.get_value('reflection') > self.black:
+        if correction == 'front':
+
+            while self.sensor.get_value('reflection') > 10:
+                motor2.stop('hold')
+                motor1.run(speed)
+            self.drive.stop()
+            motor1.stop('hold')
             motor2.stop('hold')
-            motor1.run(speed)
-        self.drive.stop()
-        motor1.stop('hold')
-        motor2.stop('hold')
 
-        motor_angle = self.motor1.get_angle()
+            dist = motor1.get_angle()
 
-        motor1.reset_angle(0)
+            while motor1.get_angle() > 0:
+                motor2.stop('hold')
+                motor1.run(-speed)
 
-        motor_dist = (motor_angle *(pi * self.wheel_diameter)/ 360)
-
-        motor1.run_dist(75, abs(motor_dist*10))
-
-        way = (motor1.get_angle() *(pi * self.wheel_diameter)/ 360)
-        tan = abs(way) / distance_between_sensors
-        atan = tan * 180 / pi
-
-        self.gyro_sensor.reset_angle(0)
-        motor1.reset_angle(0)
-
-        while self.gyro_sensor.get_gyro_angle() < atan:
+            self.drive.stop()
+            motor1.stop('hold')
             motor2.stop('hold')
-            motor1.run(speed)
-        self.drive.stop()
-        motor1.stop('hold')
-        motor2.stop('hold')
+
+            way = (dist *(pi * self.wheel_diameter)/ 360)
+            tan = abs(way) / distance_between_sensors
+            atan = tan * 180 / pi
+
+            self.gyro_sensor.reset_angle(0)
+
+            while self.gyro_sensor.get_gyro_angle() < atan:
+                motor2.stop('hold')
+                motor1.run(speed)
+
+        elif correction == 'back':
+
+            while self.sensor.get_value('reflection') > 10:
+                motor2.stop('hold')
+                motor1.run(-speed)
+            self.drive.stop()
+            motor1.stop('hold')
+            motor2.stop('hold')
+
+            dist = motor1.get_angle()
+
+            while motor1.get_angle() < 0:
+                motor2.stop('hold')
+                motor1.run(speed)
+
+            self.drive.stop()
+            motor1.stop('hold')
+            motor2.stop('hold')
+
+            way = (dist *(pi * self.wheel_diameter)/ 360)
+            tan = abs(way) / distance_between_sensors
+            atan = tan * 180 / pi
+
+            self.gyro_sensor.reset_angle(0)
+
+            while self.gyro_sensor.get_gyro_angle() < atan:
+                motor2.stop('hold')
+                motor1.run(speed)
+        
+        if stop_type == 'hold':
+            self.drive.stop()
+            motor1.stop('hold')
+            motor2.stop('hold')
+
+        elif stop_type == 'stop':
+            self.drive.stop()
 
     def line_squaring(self, speed, motor,stop_type = 'hold'):
         
@@ -1043,3 +1088,5 @@ class ClassDriveBase:
                     self.left_motor.run(final_correction_speed)
                 self.left_motor.stop('hold')
                 self.right_motor.stop('hold')
+
+    

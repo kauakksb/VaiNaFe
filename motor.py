@@ -20,6 +20,9 @@ class ClassMotor:
     def dc(self, force):
         self.motor.dc(force)
 
+    def stalled(self):
+        self.motor.control.stalled()
+
     # Move um motor grande do robõ por uma distância definida
     def run_dist(self, speed, dist, stop_type = 'hold'):
         self.motor.reset_angle(0)
@@ -37,7 +40,7 @@ class ClassMotor:
         if stop_type == 'hold':
             self.motor.stop('hold')
         elif stop_type == 'stop':
-            selfmotor,stop('stop')
+            self.motor.stop('stop')
 
     # Correndo com detecção de parada inifito até detectar
     def run_with_detection_stop_infinity(self, speed, torque):
