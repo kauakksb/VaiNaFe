@@ -97,7 +97,7 @@ class Robot:
             
             wait(150) # Tempo de 150ms para a não ativação desproposital de alguma função
 
-    # Calibrates the sensors of the robot. Measure the reflection values at the black and the white lines.
+    # Calibra os sensores do robô e mede os valores de reflexão de preto e de branco
     def calibration(self) -> None:
 
         wait(1000) # Espera 1 segundo para não ativação desproposital de alguma função

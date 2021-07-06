@@ -9,7 +9,8 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 class ClassMotor:
     def __init__(self, port):
         self.motor = Motor(port)
-
+        
+        # Valores de cálculo de distância de movimento
         self.pi = 3.14
         self.wheel_diameter = 56
     

@@ -17,25 +17,23 @@ class ClassDriveBase:
         # Instanciando a classe de DriveBase
         self.drive = DriveBase(left_motor.motor, right_motor.motor, wheel_diameter, axle_track)
 
+        # Objetos auxiliares da classe
+        self.front_s_color = ClassColorSensor(Port.S4)
+        self.left_s_color = ClassColorSensor(Port.S3)
+        self.right_s_color = ClassColorSensor(Port.S2)
+        self.gyro_sensor = ClassGyroSensor(Port.S1)
+
         # Valores de configuração
         self.straight_rate = 1000
         self.straight_acceleration = 600
         self.turn_rate = 450
         self.turn_acceleration = 250
-
         self.wheel_diameter = 56
         self.axle_track = 121
-
         self.black = 0
         self.white = 0
         self.white_back_sensors = 0
-
         self.error_correction = 0
-
-        self.front_s_color = ClassColorSensor(Port.S4)
-        self.left_s_color = ClassColorSensor(Port.S3)
-        self.right_s_color = ClassColorSensor(Port.S2)
-        self.gyro_sensor = ClassGyroSensor(Port.S1)
 
         # Definindo os valores de configuração
         self.set_state(

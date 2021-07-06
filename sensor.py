@@ -13,13 +13,13 @@ class ClassColorSensor:
     # Obtendo o valor do sensor de cor com o tipo determinado
     def get_value(self, type):
         if type == 'color':
-            return self.sensor.color()
+            return self.sensor.color() # Retorna a cor identificada pelo sensor no momento
         elif type == 'ambient':
-            return self.sensor.ambient()
+            return self.sensor.ambient() # Retorna os valores da luz ambiente no momento
         elif type == 'reflection':
-            return self.sensor.reflection()
+            return self.sensor.reflection() # Retorna os valores de reflexão no momento
         else:
-            return self.sensor.rgb()
+            return self.sensor.rgb() # Retorna a reflexão das luzes: vermelha, verde e azul
 
 class ClassGyroSensor:
     def __init__(self, port, positive_direction = Direction.CLOCKWISE):
