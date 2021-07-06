@@ -17,30 +17,30 @@ class ClassMotor:
     def run(self, speed):
         self.motor.run(speed)
 
+    # Função de movimento do motor usando força como parâmetro
     def dc(self, force):
         self.motor.dc(force)
 
-    def stalled(self):
-        self.motor.control.stalled()
-
     # Move um motor grande do robõ por uma distância definida
     def run_dist(self, speed, dist, stop_type = 'hold'):
-        self.motor.reset_angle(0)
+        self.motor.reset_angle(0) # Resetando o motor
         pi = 3.14
 
-        if dist > 0:
+        # Define a direção da rotação do motor
+        if dist > 0: # Se a distância for positiva
 
-            while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
+            while dist > (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10: # Converte os graus rotacionados pelo motor em milímetros
                 self.motor.run(speed)
 
-        elif dist < 0:
-            while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10:
-                self.motor.run(speed)
+        elif dist < 0: # Se a distância for negativa
+            while dist < (self.motor.angle() *(self.pi * self.wheel_diameter) / 360) * 10: # Converte os graus rotacionados pelo motor em milímetros
+                self.motor.run(-speed)
 
-        if stop_type == 'hold':
+        # Tipos de parada
+        if stop_type == 'hold': # Trava o motor após a execução do movimento
             self.motor.stop('hold')
         elif stop_type == 'stop':
-            self.motor.stop('stop')
+            self.motor.stop('stop') # deixa os motores livres após a execução do movimento
 
     # Correndo com detecção de parada inifito até detectar
     def run_with_detection_stop_infinity(self, speed, torque):
@@ -52,7 +52,7 @@ class ClassMotor:
     
     # Move um motor médio do robô por um número determinado de graus
     def move_grab(self,speed,degree):
-        self.reset_angle()
+        self.reset_angle() # Resetando o motor
 
         # Se move para cada lado dependendo do sinal da velocidade, se é negativo ou positivo
 
